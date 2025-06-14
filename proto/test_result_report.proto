@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package kiorga.datamodel;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+// Enum für den Gesamtstatus des Testlaufs
+enum TestRunStatus {
+  TEST_RUN_STATUS_UNSPECIFIED = 0;
+  PASSED = 1; // Alle Tests erfolgreich
+  FAILED = 2; // Mindestens ein Test fehlgeschlagen
+  COMPLETED_WITH_WARNINGS = 3; // Alle Tests durchgelaufen, aber es gab Warnungen
+}
+
+// Repräsentiert einen einzelnen, durchgeführten Testfall
+message TestCaseResult {
+  string test_name = 1; // Name des Testfalls, z.B. "test_user_login_success"
+  bool passed = 2; // True, wenn der Test erfolgreich war, sonst false
+  google.protobuf.Duration duration = 3; // Wie lange der Test lief
+  string details = 4; // Optionale Details, z.B. Fehlermeldung bei Fehlschlag
+}
+
+// Der formale Testbericht, den der QA-Agent erstellt.
+message TestResultReport {
+  string report_id = 1; // Eindeutige ID dieses Testberichts
+  string task_id = 2; // Bezieht sich auf den ursprünglichen Task, der getestet wurde
+  // Die Git Commit-ID des Quellcodes, der getestet wurde.
+  string source_commit_id = 3; // UM BENANNT für mehr Klarheit
+  string qaa_agent_id = 4; // ID des ausführenden QA-Agenten
+  google.protobuf.Timestamp execution_timestamp = 5; // Wann wurden die Tests ausgeführt?
+  TestRunStatus overall_status = 6; // Das Gesamtergebnis
+  int32 total_tests_run = 7;
+  int32 total_tests_passed = 8;
+  repeated TestCaseResult test_cases = 9; // Eine Liste der Ergebnisse der einzelnen Testfälle
+  string summary = 10; // Eine kurze Zusammenfassung in natürlicher Sprache
+}

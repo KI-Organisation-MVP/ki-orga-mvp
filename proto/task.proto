@@ -6,39 +6,70 @@ import "google/protobuf/timestamp.proto";
 
 // Enum zur Definition des Bearbeitungsstatus einer Aufgabe.
 enum TaskStatus {
-  TASK_STATUS_UNSPECIFIED = 0; // Standardwert, falls nichts gesetzt ist.
-  PENDING = 1;                 // Die Aufgabe wartet auf Bearbeitung.
-  IN_PROGRESS = 2;             // Ein Agent arbeitet gerade daran.
-  COMPLETED = 3;               // Erfolgreich abgeschlossen.
-  FAILED = 4;                  // Fehler bei der Bearbeitung.
+  TASK_STATUS_UNSPECIFIED = 0;
+  PENDING = 1;
+  IN_PROGRESS = 2;
+  COMPLETED = 3;
+  FAILED = 4;
 }
 
 // Enum zur Definition der Priorität einer Aufgabe.
 enum TaskPriority {
-  TASK_PRIORITY_UNSPECIFIED = 0; // Standardwert, falls keine Priorität gesetzt ist.
-  URGENT = 1;                    // Dringend & Wichtig, sofortige Bearbeitung.
-  HIGH = 2;                      // Hohe Priorität, zeitnah bearbeiten.
-  MEDIUM = 3;                    // Normale Priorität, im normalen Fluss.
-  LOW = 4;                       // Niedrige Priorität, kann warten.
-  OPTIONAL = 5;                  // Optional, nur wenn Zeit ist.
+  TASK_PRIORITY_UNSPECIFIED = 0;
+  URGENT = 1;
+  HIGH = 2;
+  MEDIUM = 3;
+  LOW = 4;
+  OPTIONAL = 5;
 }
 
 // Das zentrale Objekt zur Steuerung und Verfolgung von Arbeit in der KI-Organisation.
 message Task {
+  // Die global eindeutige ID der Aufgabe (z.B. eine UUID).
   string task_id = 1;
+
+  // Kurzer, menschenlesbarer Titel der Aufgabe, z.B. für Listenansichten.
   string title = 2;
+
+  // Detaillierte Beschreibung der Arbeitsanweisung für den ausführenden Agenten.
   string description = 3;
+
+  // Der aktuelle Bearbeitungsstatus der Aufgabe.
   TaskStatus status = 4;
+
+  // Die Priorität der Aufgabe zur Steuerung der Abarbeitungsreihenfolge.
   TaskPriority priority = 5;
+
+  // Die ID des Agenten, der für die Ausführung der Aufgabe verantwortlich ist.
   string assigned_to_agent_id = 6;
+
+  // Die ID des Agenten, der die Aufgabe ursprünglich erstellt hat.
   string creator_agent_id = 7;
+
+  // Zeitstempel der Erstellung der Aufgabe.
   google.protobuf.Timestamp created_at = 8;
+
+  // Zeitstempel der letzten Aktualisierung. Wird bei jeder Änderung aktualisiert.
   google.protobuf.Timestamp updated_at = 9;
+
+  // Eine Liste von 'task_id's, die abgeschlossen sein müssen, bevor diese Aufgabe starten kann.
   repeated string dependencies = 10;
+
+  // Schlüssel-Wert-Paare für Verweise auf Input-Daten (z.B. Pfade in Cloud Storage).
   map<string, string> input_data_references = 11;
+
+  // Schlüssel-Wert-Paare für Verweise auf Output-Daten.
   map<string, string> output_data_references = 12;
-  repeated string success_criteria_metrics = 13;
-  string parent_task_id = 14; // ID der übergeordneten Aufgabe für hierarchische Struktur.
-  google.protobuf.Timestamp due_date = 15; // Optionales Fälligkeitsdatum.
-  bool co_pilot_mode = 16; // Wenn true, erfordert die Aufgabe menschliche Freigaben.
+
+  // Textuelle Beschreibung der Erfolgskriterien ("Definition of Done").
+  string success_criteria_metrics = 13;
+
+  // Optional: Die ID der übergeordneten Aufgabe zur Abbildung von Hierarchien.
+  string parent_task_id = 14;
+
+  // Optional: Das Fälligkeitsdatum für die Aufgabe, um die Priorisierung zu unterstützen.
+  google.protobuf.Timestamp due_date = 15;
+
+  // Wenn 'true', erfordert die Aufgabe menschliche Freigaben an definierten Punkten.
+  bool co_pilot_mode = 16;
 }

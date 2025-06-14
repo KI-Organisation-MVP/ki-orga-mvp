@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package kiorga.datamodel;
+
+import "google/protobuf/timestamp.proto";
+
+// Ein Enum, das den endgültigen Ausgang einer Aufgabe klar definiert.
+enum FinalStatus {
+  // Standardwert, sollte nicht verwendet werden.
+  FINAL_STATUS_UNSPECIFIED = 0;
+  // Die Aufgabe wurde vollständig und erfolgreich abgeschlossen.
+  SUCCESS = 1;
+  // Die Aufgabe konnte nicht erfolgreich abgeschlossen werden.
+  FAILURE = 2;
+}
+
+// Der FinalReport ist das Abschlussdokument einer Aufgabe.
+message FinalReport {
+  // Eindeutige ID für diesen Abschlussbericht.
+  string report_id = 1;
+
+  // Die ID des Tasks, der hiermit abgeschlossen wird.
+  string task_id = 2;
+
+  // Die ID des Agenten, der die Aufgabe ausgeführt und diesen Bericht erstellt hat.
+  string executing_agent_id = 3;
+
+  // Der Zeitstempel, wann die Aufgabe abgeschlossen wurde.
+  google.protobuf.Timestamp completion_timestamp = 4;
+
+  // Der endgültige Status der Aufgabe.
+  FinalStatus final_status = 5;
+
+  // Eine prägnante Zusammenfassung der gesamten durchgeführten Arbeit,
+  // der erzielten Ergebnisse und der Gründe für einen eventuellen Fehlschlag.
+  string summary = 6;
+
+  // Eine Map von Referenzen auf die finalen Datenobjekte, die als Ergebnis
+  // dieser Aufgabe erstellt wurden. Der Key ist eine beschreibende Bezeichnung,
+  // der Value ist die ID des Objekts in Firestore.
+  map<string, string> output_data_references = 7; // DEINE VERBESSERUNG
+}

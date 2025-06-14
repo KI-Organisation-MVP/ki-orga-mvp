@@ -37,7 +37,7 @@ message Task {
   repeated string dependencies = 10;
   map<string, string> input_data_references = 11;
   map<string, string> output_data_references = 12;
-  string success_criteria_metrics = 13;
+  repeated string success_criteria_metrics = 13;
   repeated string decision_log_ids = 14;
   string parent_task_id = 15; // ID der übergeordneten Aufgabe für hierarchische Struktur.
   google.protobuf.Timestamp due_date = 16; // Optionales Fälligkeitsdatum.

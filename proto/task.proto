@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package ki_orga.data;
+
+import "google/protobuf/timestamp.proto";
+
+// Enum zur Definition des Bearbeitungsstatus einer Aufgabe.
+enum TaskStatus {
+  TASK_STATUS_UNSPECIFIED = 0; // Standardwert, falls nichts gesetzt ist.
+  PENDING = 1;                 // Die Aufgabe wartet auf Bearbeitung.
+  IN_PROGRESS = 2;             // Ein Agent arbeitet gerade daran.
+  COMPLETED = 3;               // Erfolgreich abgeschlossen.
+  FAILED = 4;                  // Fehler bei der Bearbeitung.
+}
+
+// Enum zur Definition der Priorität einer Aufgabe.
+enum TaskPriority {
+  TASK_PRIORITY_UNSPECIFIED = 0; // Standardwert, falls keine Priorität gesetzt ist.
+  URGENT = 1;                    // Dringend & Wichtig, sofortige Bearbeitung.
+  HIGH = 2;                      // Hohe Priorität, zeitnah bearbeiten.
+  MEDIUM = 3;                    // Normale Priorität, im normalen Fluss.
+  LOW = 4;                       // Niedrige Priorität, kann warten.
+  OPTIONAL = 5;                  // Optional, nur wenn Zeit ist.
+}
+
+// Das zentrale Objekt zur Steuerung und Verfolgung von Arbeit in der KI-Organisation.
+message Task {
+  string task_id = 1;
+  string title = 2;
+  string description = 3;
+  TaskStatus status = 4;
+  TaskPriority priority = 5;
+  string assigned_to_agent_id = 6;
+  string creator_agent_id = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+  repeated string dependencies = 10;
+  map<string, string> input_data_references = 11;
+  map<string, string> output_data_references = 12;
+  repeated string success_criteria_metrics = 13;
+  string parent_task_id = 14; // ID der übergeordneten Aufgabe für hierarchische Struktur.
+  google.protobuf.Timestamp due_date = 15; // Optionales Fälligkeitsdatum.
+  bool co_pilot_mode = 16; // Wenn true, erfordert die Aufgabe menschliche Freigaben.
+}

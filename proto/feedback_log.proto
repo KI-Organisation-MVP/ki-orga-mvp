@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package ki_orga.data;
+
+import "google/protobuf/timestamp.proto";
+
+// Enum zur Definition der möglichen Feedback-Geber.
+enum Submitter {
+  SUBMITTER_UNSPECIFIED = 0; // Standardwert
+  MARCEL = 1;
+  PHILIPP = 2;
+}
+
+// Enum zur Definition der quantitativen Bewertungsskala im Feedback.
+enum FeedbackRating {
+  FEEDBACK_RATING_UNSPECIFIED = 0; // Standardwert, falls kein Rating gegeben wird
+  VERY_POOR = 1;                   // Sehr schlecht
+  POOR = 2;                        // Schlecht
+  NEUTRAL = 3;                     // Neutral / Ok
+  GOOD = 4;                        // Gut
+  VERY_GOOD = 5;                   // Sehr gut
+}
+
+// Erfasst das strukturierte, korrektive Feedback der menschlichen System-Guardianen.
+message FeedbackLog {
+  // Die eindeutige ID dieses Feedback-Eintrags.
+  string feedback_id = 1;
+
+  // Zeitstempel, wann das Feedback abgegeben wurde.
+  google.protobuf.Timestamp submitted_at = 2;
+
+  // Der Absender des Feedbacks.
+  Submitter submitter_id = 3;
+
+  // Optional: Die ID des Tasks, auf den sich das Feedback bezieht.
+  string target_task_id = 4;
+
+  // Der qualitative Inhalt des Feedbacks.
+  string feedback_text = 5;
+
+  // Eine optionale, quantitative Bewertung.
+  FeedbackRating rating = 6;
+}

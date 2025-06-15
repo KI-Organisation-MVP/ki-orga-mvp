@@ -4,6 +4,9 @@ import json
 import logging
 from flask import Flask, request
 
+# Importiert die generierte Python-Klasse für unser Task-Objekt
+from kiorga.datamodel import task_pb2
+
 # === Logging-Konfiguration ===
 # Konfiguriert das Standard-Logging, um von Google Cloud Logging erfasst zu werden.
 # Indem wir keinen Handler explizit definieren, nutzt es den Standard-Stream,
@@ -19,7 +22,7 @@ app = Flask(__name__)
 @app.route("/", methods=["POST"])
 def index():
     """
-    Empfängt und verarbeitet eine per HTTP-Push zugestellte Pub/Sub-Nachricht.
+    Empfängt, dekodiert und verarbeitet eine Pub/Sub-Nachricht, die ein Task-Objekt enthält.
     """
     # Überprüfen, ob die Anfrage einen gültigen JSON-Body hat
     envelope = request.get_json()
@@ -35,22 +38,27 @@ def index():
         return f"Bad Request: {msg}", 400
 
     pubsub_message = envelope["message"]
+    task = task_pb2.Task() # Erstellt eine leere Instanz unseres Task-Objekts
     
     # In einer echten Nachricht sind die Daten base64-kodiert.
     # Wir werden sie später hier dekodieren und verarbeiten.
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
         try:
-            data = base64.b64decode(pubsub_message["data"]).decode("utf-8")
-            logging.info(f"Successfully decoded message data: {data}")
+            # Dekodiert die Base64-Daten in einen Byte-String
+            data_bytes = base64.b64decode(pubsub_message["data"])
+            
+            # Wandelt den Byte-String in unser strukturiertes Task-Objekt um
+            task.FromString(data_bytes)
+            
+            logging.info(f"Successfully parsed Task object: id={task.task_id}, title='{task.title}'")
+
         except Exception as e:
-            logging.error(f"Error decoding base64 message data: {e}", exc_info=True) # exc_info=True fügt den Stack Trace hinzu
+            logging.error(f"Error parsing Task object from Pub/Sub message: {e}", exc_info=True)
+            return "Bad Request: Could not parse Task object", 400
 
+    # NÄCHSTER SCHRITT (P3.5): Hier kommt die Logik, um das 'task'-Objekt
+    # in Firestore zu speichern.
 
-    # Später wird hier die eigentliche Logik des Agenten stehen:
-    # 1. Nachricht dekodieren (Task-Objekt)
-    # 2. In Firestore speichern/aktualisieren
-    # 3. Ggf. neue Aufgaben an andere Agenten delegieren
-    
     # Eine leere "204 No Content"-Antwort signalisiert Pub/Sub,
     # dass die Nachricht erfolgreich empfangen wurde und nicht erneut gesendet werden muss.
     return "", 204

@@ -1,16 +1,16 @@
 syntax = "proto3";
 
-package ki_orga.data;
+package kiorga.datamodel;
 
 import "google/protobuf/timestamp.proto";
 
 // Enum zur Definition des Bearbeitungsstatus einer Aufgabe.
 enum TaskStatus {
   TASK_STATUS_UNSPECIFIED = 0;
-  PENDING = 1;
-  IN_PROGRESS = 2;
-  COMPLETED = 3;
-  FAILED = 4;
+  TASK_STATUS_PENDING = 1;
+  TASK_STATUS_IN_PROGRESS = 2;
+  TASK_STATUS_COMPLETED = 3;
+  TASK_STATUS_FAILED = 4;
 }
 
 // Enum zur Definition der Priorität einer Aufgabe.

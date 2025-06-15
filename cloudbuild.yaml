@@ -1,6 +1,4 @@
 steps:
-  # Dieser Schritt nutzt ein Standard-Builder-Image von Google
-  # und führt einfache Shell-Befehle aus.
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
@@ -9,3 +7,7 @@ steps:
         echo "CI-Trigger wurde erfolgreich durch einen Push auf den Main-Branch ausgelöst!"
         echo "Überprüfe den Inhalt des 'proto'-Verzeichnisses:"
         ls -l proto/
+
+# Hinzufügen der Logging-Konfiguration, um den Fehler zu beheben
+options:
+  logging: CLOUD_LOGGING_ONLY

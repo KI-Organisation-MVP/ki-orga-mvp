@@ -8,9 +8,9 @@ import "google/protobuf/duration.proto";
 // Enum für den Gesamtstatus des Testlaufs
 enum TestRunStatus {
   TEST_RUN_STATUS_UNSPECIFIED = 0;
-  PASSED = 1; // Alle Tests erfolgreich
-  FAILED = 2; // Mindestens ein Test fehlgeschlagen
-  COMPLETED_WITH_WARNINGS = 3; // Alle Tests durchgelaufen, aber es gab Warnungen
+  TEST_RUN_STATUS_PASSED = 1; // Alle Tests erfolgreich
+  TEST_RUN_STATUS_FAILED = 2; // Mindestens ein Test fehlgeschlagen
+  TEST_RUN_STATUS_COMPLETED_WITH_WARNINGS = 3; // Alle Tests durchgelaufen, aber es gab Warnungen
 }
 
 // Repräsentiert einen einzelnen, durchgeführten Testfall

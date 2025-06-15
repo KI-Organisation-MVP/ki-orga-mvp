@@ -4,7 +4,9 @@ import json
 import logging
 from flask import Flask, request
 
-# Importiert die generierte Python-Klasse für unser Task-Objekt
+from google.cloud import firestore
+from google.protobuf import json_format
+# Importiert die Protobuf-Definition für das Task-Objekt.
 from kiorga.datamodel import task_pb2
 
 # === Logging-Konfiguration ===
@@ -15,6 +17,11 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+
+# === Globale Clients ===
+# Initialisiert den Firestore-Client.
+# Die Authentifizierung erfolgt automatisch über die Umgebung, in der der Code läuft (z.B. Cloud Run).
+db = firestore.Client()
 
 # Initialisiert die Web-Anwendung
 app = Flask(__name__)
@@ -38,26 +45,33 @@ def index():
         return f"Bad Request: {msg}", 400
 
     pubsub_message = envelope["message"]
-    task = task_pb2.Task() # Erstellt eine leere Instanz unseres Task-Objekts
+    task = task_pb2.Task()
     
     # In einer echten Nachricht sind die Daten base64-kodiert.
     # Wir werden sie später hier dekodieren und verarbeiten.
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
         try:
             # Dekodiert die Base64-Daten in einen Byte-String
-            data_bytes = base64.b64decode(pubsub_message["data"])
-            
+            data_bytes = base64.b64decode(pubsub_message["data"])            
             # Wandelt den Byte-String in unser strukturiertes Task-Objekt um
-            task.FromString(data_bytes)
-            
+            task.FromString(data_bytes)            
             logging.info(f"Successfully parsed Task object: id={task.task_id}, title='{task.title}'")
+
+            # NEUE LOGIK: Task in Firestore speichern
+            # ------------------------------------------
+            # Firestore kann nicht direkt mit Protobuf-Objekten arbeiten.
+            # Wir wandeln unseren Task in ein Python-Dictionary um.
+            task_dict = json.loads(json_format.MessageToJson(task))
+            # Wir erstellen eine Referenz auf ein Dokument in der "tasks"-Collection.
+            # Als Dokumenten-ID verwenden wir die task_id, um sie leicht wiederzufinden.
+            doc_ref = db.collection("tasks").document(task.task_id)
+            # Wir schreiben das Dictionary in das Firestore-Dokument.
+            doc_ref.set(task_dict)
+            logging.info(f"Task {task.task_id} successfully saved to Firestore.")
 
         except Exception as e:
             logging.error(f"Error parsing Task object from Pub/Sub message: {e}", exc_info=True)
             return "Bad Request: Could not parse Task object", 400
-
-    # NÄCHSTER SCHRITT (P3.5): Hier kommt die Logik, um das 'task'-Objekt
-    # in Firestore zu speichern.
 
     # Eine leere "204 No Content"-Antwort signalisiert Pub/Sub,
     # dass die Nachricht erfolgreich empfangen wurde und nicht erneut gesendet werden muss.

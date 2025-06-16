@@ -1,13 +1,18 @@
 steps:
-  - name: 'gcr.io/cloud-builders/gcloud'
+  # Schritt 1: Installiere 'buf' und führe den Linter aus
+  - name: 'golang:1.21' # Wir nutzen ein Go-Image, da 'buf' damit einfach installiert werden kann
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        echo "CI-Trigger wurde erfolgreich durch einen Push auf den Main-Branch ausgelöst!"
-        echo "Überprüfe den Inhalt des 'proto'-Verzeichnisses:"
-        ls -l proto/
-
-# Hinzufügen der Logging-Konfiguration, um den Fehler zu beheben
+        echo "Installiere Buf..."
+        # Wir installieren buf direkt von GitHub
+        go install github.com/bufbuild/buf/cmd/buf@latest
+        
+        echo "Führe Buf Linter aus..."
+        # Führe den Linter auf unserem proto-Verzeichnis aus
+        /root/go/bin/buf lint proto/
+        
+# Behalte die Logging-Konfiguration bei
 options:
   logging: CLOUD_LOGGING_ONLY

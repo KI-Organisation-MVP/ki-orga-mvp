@@ -1,0 +1,8 @@
+# Web-Framework, um Pub/Sub-Nachrichten per HTTP-Push zu empfangen
+Flask==3.0.3
+gunicorn==22.0.0
+
+# Google Cloud-Bibliotheken für die Interaktion mit GCP-Diensten
+google-cloud-pubsub==2.19.4
+google-cloud-firestore==2.16.0
+google-cloud-logging==3.8.0

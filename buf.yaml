@@ -1,0 +1,12 @@
+version: v1
+# Definiert, wo unsere Proto-Quelldateien liegen.
+# Das löst den Fehler mit der Verzeichnisstruktur.
+roots:
+  - proto
+lint:
+  # Wir verwenden die empfohlenen Standardregeln.
+  use:
+    - DEFAULT
+  # Hier deaktivieren wir die Regel zur Paket-Versionierung für den MVP.
+  except:
+    - PACKAGE_VERSION_SUFFIX

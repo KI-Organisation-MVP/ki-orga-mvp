@@ -16,8 +16,9 @@ steps:
         chmod +x /workspace/buf
         
         echo "Führe Buf Linter aus..."
-        # Wir führen die heruntergeladene Datei direkt aus
-        /workspace/buf lint proto/
+        # Wir führen den Linter jetzt im Hauptverzeichnis aus,
+        # damit er die buf.yaml findet.
+        /workspace/buf lint
     id: 'Lint Proto Files'
 
   # =================================================================

@@ -1,0 +1,39 @@
+# Name des Workflows, wie er in der GitHub-Oberfläche angezeigt wird
+name: GCP Auth Test
+
+# Dieser Trigger erlaubt es uns, den Workflow manuell zu starten
+on:
+  workflow_dispatch:
+
+# Definiert die Berechtigungen, die der Workflow selbst von GitHub benötigt
+permissions:
+  contents: read
+  id-token: write # Erlaubt dem Workflow, ein OIDC ID-Token von GitHub anzufordern
+
+jobs:
+  test-gcp-authentication:
+    # Der Name des Jobs
+    name: Authenticate with GCP and run gcloud command
+    # Wir führen diesen Job auf einem von GitHub bereitgestellten Linux-Runner aus
+    runs-on: ubuntu-latest
+
+    steps:
+      # Schritt 1: Authentifizierung bei Google Cloud
+      # Dies ist die offizielle Action von Google, die die Magie der Workload Identity Federation nutzt
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          # Hier verwenden wir die Secrets, die du in GitHub angelegt hast
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      # Schritt 2: gcloud-Befehl ausführen, um die Authentifizierung zu testen
+      # Wenn dieser Schritt erfolgreich ist, hat die Authentifizierung funktioniert
+      - name: Run gcloud info command
+        run: |
+          echo "Successfully authenticated with a token for the following service account:"
+          gcloud auth list
+          echo "----------------------------------------"
+          echo "Verifying access to project details..."
+          gcloud projects describe ${{ secrets.GCP_PROJECT_ID }}

@@ -51,7 +51,9 @@ images:
 
 # Optionen für den Build-Prozess (zusammengeführt)
 options:
-  # Verbessert die Build-Zeiten durch Caching
-  caching: 'AUTO'
+  # Verbessert die Build-Zeiten durch Caching - 
+  # TODO: die Option caching scheint es nicht zu geben!!
+  #caching: 'AUTO'
+  
   # Stellt sicher, dass alle Logs in Google Cloud Logging landen
   logging: CLOUD_LOGGING_ONLY

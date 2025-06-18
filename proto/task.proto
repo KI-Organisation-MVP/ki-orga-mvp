@@ -16,11 +16,11 @@ enum TaskStatus {
 // Enum zur Definition der Priorität einer Aufgabe.
 enum TaskPriority {
   TASK_PRIORITY_UNSPECIFIED = 0;
-  URGENT = 1;
-  HIGH = 2;
-  MEDIUM = 3;
-  LOW = 4;
-  OPTIONAL = 5;
+  TASK_PRIORITY_URGENT = 1;
+  TASK_PRIORITY_HIGH = 2;
+  TASK_PRIORITY_MEDIUM = 3;
+  TASK_PRIORITY_LOW = 4;
+  TASK_PRIORITY_OPTIONAL = 5;
 }
 
 // Das zentrale Objekt zur Steuerung und Verfolgung von Arbeit in der KI-Organisation.

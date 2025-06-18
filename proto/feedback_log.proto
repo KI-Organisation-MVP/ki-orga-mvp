@@ -7,18 +7,18 @@ import "google/protobuf/timestamp.proto";
 // Enum zur Definition der möglichen Feedback-Geber.
 enum Submitter {
   SUBMITTER_UNSPECIFIED = 0; // Standardwert
-  MARCEL = 1;
-  PHILIPP = 2;
+  SUBMITTER_MARCEL = 1;
+  SUBMITTER_PHILIPP = 2;
 }
 
 // Enum zur Definition der quantitativen Bewertungsskala im Feedback.
 enum FeedbackRating {
   FEEDBACK_RATING_UNSPECIFIED = 0; // Standardwert, falls kein Rating gegeben wird
-  VERY_POOR = 1;                   // Sehr schlecht
-  POOR = 2;                        // Schlecht
-  NEUTRAL = 3;                     // Neutral / Ok
-  GOOD = 4;                        // Gut
-  VERY_GOOD = 5;                   // Sehr gut
+  FEEDBACK_RATING_VERY_POOR = 1;                   // Sehr schlecht
+  FEEDBACK_RATING_POOR = 2;                        // Schlecht
+  FEEDBACK_RATING_NEUTRAL = 3;                     // Neutral / Ok
+  FEEDBACK_RATING_GOOD = 4;                        // Gut
+  FEEDBACK_RATING_VERY_GOOD = 5;                   // Sehr gut
 }
 
 // Erfasst das strukturierte, korrektive Feedback der menschlichen System-Guardianen.

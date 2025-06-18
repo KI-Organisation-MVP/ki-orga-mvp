@@ -1,6 +1,9 @@
+# Definiert die Schritte, die Cloud Build nacheinander ausführen soll
 steps:
-  # Schritt 1: Installiere 'buf' und führe den Linter aus
-  - name: 'golang:1.21' # Wir nutzen ein Go-Image, da 'buf' damit einfach installiert werden kann
+  # =================================================================
+  # SCHRITT 1: Protobuf-Dateien auf Qualität und Konsistenz prüfen
+  # =================================================================
+  - name: 'golang:1.22' # Wir nutzen ein Go-Image, da 'buf' damit einfach installiert werden kann
     entrypoint: 'bash'
     args:
       - '-c'
@@ -10,9 +13,45 @@ steps:
         go install github.com/bufbuild/buf/cmd/buf@latest
         
         echo "Führe Buf Linter aus..."
-        # Führe den Linter auf unserem proto-Verzeichnis aus
+        # Führe den Linter auf unserem proto-Verzeichnis aus.
+        # Wenn der Linter einen Fehler findet, bricht der gesamte Build hier ab.
         /root/go/bin/buf lint proto/
-        
-# Behalte die Logging-Konfiguration bei
+    id: 'Lint Proto Files'
+
+  # =================================================================
+  # SCHRITT 2: Docker Image für den LDA-Service bauen
+  # (Dieser Schritt wird nur ausgeführt, wenn Schritt 1 erfolgreich war)
+  # =================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        # '-t' gibt dem Image einen Namen (Tag)
+        '-t',
+        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$SHORT_SHA',
+        # Wir geben den Pfad zu unserem Python-Verzeichnis als Build-Kontext an
+        './python'
+      ]
+    id: 'Build Docker Image for LDA'
+
+  # =================================================================
+  # SCHRITT 3: Gebautes Docker Image in das Artifact Registry pushen
+  # =================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$SHORT_SHA',
+      ]
+    id: 'Push Docker Image to Artifact Registry'
+
+# Hier definieren wir, welche Artefakte nach dem Build gespeichert werden sollen
+images:
+  - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$SHORT_SHA'
+
+# Optionen für den Build-Prozess (zusammengeführt)
 options:
+  # Verbessert die Build-Zeiten durch Caching
+  caching: 'AUTO'
+  # Stellt sicher, dass alle Logs in Google Cloud Logging landen
   logging: CLOUD_LOGGING_ONLY

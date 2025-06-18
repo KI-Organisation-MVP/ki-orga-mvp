@@ -3,7 +3,7 @@ steps:
   # =================================================================
   # SCHRITT 1: Protobuf-Dateien auf Qualität und Konsistenz prüfen
   # =================================================================
-  - name: 'golang:1.22' # Wir nutzen ein Go-Image, da 'buf' damit einfach installiert werden kann
+  - name: 'golang:1.24' # Wir nutzen ein Go-Image, da 'buf' damit einfach installiert werden kann
     entrypoint: 'bash'
     args:
       - '-c'

@@ -5,11 +5,11 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Kopiere die "Einkaufsliste" und installiere die Python-Bibliotheken
-COPY requirements.txt .
+COPY python/services/agent-lda/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Kopiere den Rest unseres Anwendungs-Codes (also main.py etc.)
-COPY . .
+COPY python/services/agent-lda/ .
 
 # Dieser Befehl wird ausgeführt, wenn der Container startet.
 # Er startet einen robusten Webserver (gunicorn), der unsere App (main:app) ausführt.

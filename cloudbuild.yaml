@@ -17,7 +17,8 @@ steps:
         
         echo "Führe Buf Linter aus..."
         # Wir führen die heruntergeladene Datei direkt aus
-        /workspace/buf lint --path proto
+        # /workspace/buf lint --path proto
+        cd proto && /workspace/buf lint
     id: 'Lint Proto Files'
 
   # =================================================================

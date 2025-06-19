@@ -1,16 +1,16 @@
-# Wir verwenden ein offizielles, schlankes Python-Image als Basis
+# Verwende ein offizielles, schlankes Python-Image als Basis
 FROM python:3.12-slim
 
-# Wir setzen das Arbeitsverzeichnis im Container auf /app
+# Setze das Arbeitsverzeichnis im Container
 WORKDIR /app
 
-# Kopiere die "Einkaufsliste" und installiere die Python-Bibliotheken
-COPY python/services/agent-lda/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Kopiere den GESAMTEN Inhalt unseres python-Verzeichnisses in den Container.
+# Dadurch haben wir jetzt /app/kiorga/ und /app/services/ im Container.
+COPY python/ .
 
-# Kopiere den Rest unseres Anwendungs-Codes (also main.py etc.)
-COPY python/services/agent-lda/ .
+# Installiere die Python-Abhängigkeiten aus der korrekten requirements.txt
+RUN pip install --no-cache-dir -r services/agent-lda/requirements.txt
 
-# Dieser Befehl wird ausgeführt, wenn der Container startet.
-# Er startet einen robusten Webserver (gunicorn), der unsere App (main:app) ausführt.
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:app"]
+# Starte den Gunicorn-Server.
+# Wir sagen ihm, er soll das Arbeitsverzeichnis auf den Ordner unseres Services setzen.
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--chdir", "services/agent-lda", "main:app"]

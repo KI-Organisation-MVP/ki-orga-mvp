@@ -1,10 +1,4 @@
 version: v1
-# Definiert, wo unsere Proto-Quelldateien liegen.
-# Das löst den Fehler mit der Verzeichnisstruktur.
-# Definiert die 'Module'. Ein Modul ist eine logische Einheit von .proto-Dateien.
-# Unser 'proto'-Verzeichnis ist ein Modul.
-modules:
-  - path: proto
 
 lint:
   # Wir verwenden die empfohlenen Standardregeln.

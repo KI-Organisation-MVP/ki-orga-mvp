@@ -31,7 +31,12 @@ steps:
         'build',
         '-t',
         'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$SHORT_SHA',
-        './python'
+        # -f gibt explizit den Pfad zu unserer Dockerfile an
+        '-f',
+        'python/services/agent-lda/Dockerfile',
+        # Der '.' am Ende sagt Docker, es soll das gesamte Projektverzeichnis als Kontext nehmen,
+        # damit es alle nötigen Dateien (wie das 'kiorga'-Paket) finden kann.
+        '.'
       ]
     id: 'Build Docker Image for LDA'
 
@@ -51,5 +56,4 @@ images:
 
 options:
   #TODO: Cashing-Möglichkeiten prüfen
-  #caching: 'AUTO'
   logging: CLOUD_LOGGING_ONLY

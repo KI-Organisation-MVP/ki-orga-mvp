@@ -6,9 +6,6 @@ __pycache__/
 # C extensions
 *.so
 
-# Ignoriere generierte Python-Proto-Dateien
-**/*_pb2.py
-
 # Distribution / packaging
 .Python
 build/

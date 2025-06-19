@@ -1,9 +1,8 @@
 version: v1
-
 lint:
-  # Wir verwenden die empfohlenen Standardregeln.
+  # Wir verwenden die moderne, empfohlene Standard-Regelgruppe
   use:
-    - DEFAULT
-  # Hier deaktivieren wir die Regel zur Paket-Versionierung für den MVP.
+    - STANDARD
+  # Wir behalten die Ausnahme für die Versions-Endung bei
   except:
     - PACKAGE_VERSION_SUFFIX

@@ -8,8 +8,14 @@ WORKDIR /app
 # Dadurch haben wir jetzt /app/kiorga/ und /app/services/ im Container.
 COPY python/ .
 
-# Installiere die Python-Abhängigkeiten aus der korrekten requirements.txt
+# Installiere die Python-Abhängigkeiten
 RUN pip install --no-cache-dir -r services/agent-lda/requirements.txt
+
+# NEUER DIAGNOSE-SCHRITT: Gib alle installierten Pakete und ihre Versionen im Build-Log aus
+RUN pip freeze
+
+# Kopiere den Rest des Codes
+COPY python/services/agent-lda/ .
 
 # Starte den Gunicorn-Server.
 # Wir sagen ihm, er soll das Arbeitsverzeichnis auf den Ordner unseres Services setzen.

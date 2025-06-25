@@ -23,7 +23,7 @@ try:
     # Serialisiere das Objekt in einen binären Byte-String
     serialized_task = task.SerializeToString()
 
-    # Kodiere den Byte-String in Base64 für den Versand via gcloud
+    # Kodiere den Byte-String in Base64 für den Versand via gcloud Pub/Sub
     base64_encoded_task = base64.b64encode(serialized_task).decode('utf-8')
 
     # Gib den finalen String aus

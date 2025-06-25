@@ -53,9 +53,9 @@ def index():
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
         try:
             # Dekodiert die Base64-Daten in einen Byte-String
-            data_bytes = base64.b64decode(pubsub_message["data"])            
+            data_bytes = base64.b64decode(pubsub_message["data"])
             # Wandelt den Byte-String in unser strukturiertes Task-Objekt um
-            task.FromString(data_bytes)            
+            task.FromString(data_bytes)
             logging.info(f"Successfully parsed Task object: id={task.task_id}, title='{task.title}'")
 
             # NEUE LOGIK: Task in Firestore speichern

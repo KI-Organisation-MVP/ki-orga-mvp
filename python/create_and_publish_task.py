@@ -7,6 +7,7 @@ from kiorga.datamodel.task_pb2 import TaskStatus, TaskPriority
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.cloud import pubsub_v1
 from google.api_core import exceptions
+from google.protobuf import json_format
 
 # Sauberes Logging konfigurieren
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -67,12 +68,14 @@ def create_and_publish_task():
         return (False, "VALIDATION_ERROR", error_msg)
 
     # 2. Task in binäre Daten serialisieren (Protobuf)
-    data_to_send = task.SerializeToString()
+    # data_to_send = task.SerializeToString()
+    json_string_to_send = json_format.MessageToJson(task)
+
     # --- NEUE DIAGNOSE-AUSGABE ---
-    print("--- Eindeutige DNA der Nachricht (Hex) ---")
-    print(data_to_send.hex())
-    print("----------------------------------------")
     logging.info(f"Erstelle Task mit ID: {task.task_id}")
+    logging.info(f"Sende als JSON-String: {json_string_to_send}")
+
+    data_to_send = json_string_to_send.encode('utf-8')
 
     # 3. Nachricht mit Fehlerbehandlung an Pub/Sub veröffentlichen
     try:

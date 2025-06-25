@@ -9,6 +9,7 @@ from google.cloud import firestore
 from google.protobuf import json_format
 # Importiert die Protobuf-Definition für das Task-Objekt.
 from kiorga.datamodel import task_pb2
+from google.protobuf import json_format
 
 # === Logging-Konfiguration ===
 # Konfiguriert das Standard-Logging, um von Google Cloud Logging erfasst zu werden.
@@ -62,16 +63,23 @@ def index():
                 return "Bad Request: base64 decode error", 400
 
             logging.info(f"Empfangene Nachrichten-DNA (Hex): {data_bytes.hex()}")
+            # ... und wandeln sie zurück in den JSON-String.
+            json_string_received = data_bytes.decode('utf-8')
+            logging.info(f"Empfangene JSON-Daten: {json_string_received}")
 
             # Wandelt den Byte-String in unser strukturiertes Task-Objekt um
             try:
-                task.FromString(data_bytes)
+                # task.FromString(data_bytes)
+                # --- NEUE DESERIALISIERUNG ---
+                # Wir parsen den JSON-String in unser leeres Task-Objekt.
+                json_format.Parse(json_string_received, task)
+            
             except Exception as e:
                 logging.error(f"Protobuf-Deserialisierung fehlgeschlagen: {e}", exc_info=True)
                 return "Bad Request: protobuf parse error", 422
 
-            logging.info(f"Successfully parsed Task object: id={task.task_id}, title='{task.title}'")
-            
+            logging.info(f"Successfully parsed Task object from JSON: id={task.task_id}, title='{task.title}'")
+
             # Validiert das Task-Objekt
             validation_errors = validate_task(task)
             if validation_errors:

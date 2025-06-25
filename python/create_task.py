@@ -19,6 +19,32 @@ task.creator_agent_id = "user-philipp" # Manuell ausgelöst
 now = Timestamp()
 task.created_at.GetCurrentTime()
 
+# Beispiel für eine einfache Validierungsfunktion
+def validate_task(task):
+    errors = []
+    if not task.task_id:
+        errors.append("task_id fehlt")
+    if not task.title or len(task.title.strip()) == 0:
+        errors.append("title fehlt oder ist leer")
+    if not task.description or len(task.description.strip()) == 0:
+        errors.append("description fehlt oder ist leer")
+    if task.status not in [TaskStatus.TASK_STATUS_PENDING, TaskStatus.TASK_STATUS_DONE]:
+        errors.append("status ist ungültig")
+    if task.priority not in [TaskPriority.TASK_PRIORITY_LOW, TaskPriority.TASK_PRIORITY_MEDIUM, TaskPriority.TASK_PRIORITY_HIGH]:
+        errors.append("priority ist ungültig")
+    if not task.creator_agent_id:
+        errors.append("creator_agent_id fehlt")
+    # created_at kann z.B. auf 0 geprüft werden
+    if not task.created_at or task.created_at.seconds == 0:
+        errors.append("created_at fehlt oder ist ungültig")
+    return errors
+
+# Anwendung vor der Serialisierung:
+validation_errors = validate_task(task)
+if validation_errors:
+    print("Fehlerhafte Felder:", validation_errors)
+    exit(1)
+
 try:
     # Serialisiere das Objekt in einen binären Byte-String
     serialized_task = task.SerializeToString()

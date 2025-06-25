@@ -28,9 +28,9 @@ def validate_task(task):
         errors.append("title fehlt oder ist leer")
     if not task.description or len(task.description.strip()) == 0:
         errors.append("description fehlt oder ist leer")
-    if task.status not in [TaskStatus.TASK_STATUS_PENDING, TaskStatus.TASK_STATUS_DONE]:
+    if task.status not in [TaskStatus.TASK_STATUS_PENDING, TaskStatus.TASK_STATUS_COMPLETED, TaskStatus.TASK_STATUS_IN_PROGRESS, TaskStatus.TASK_STATUS_FAILED]:
         errors.append("status ist ungültig")
-    if task.priority not in [TaskPriority.TASK_PRIORITY_LOW, TaskPriority.TASK_PRIORITY_MEDIUM, TaskPriority.TASK_PRIORITY_HIGH]:
+    if task.priority not in [TaskPriority.TASK_PRIORITY_LOW, TaskPriority.TASK_PRIORITY_MEDIUM, TaskPriority.TASK_PRIORITY_HIGH, TaskPriority.TASK_PRIORITY_URGENT, TaskPriority.TASK_PRIORITY_OPTIONAL]:
         errors.append("priority ist ungültig")
     if not task.creator_agent_id:
         errors.append("creator_agent_id fehlt")

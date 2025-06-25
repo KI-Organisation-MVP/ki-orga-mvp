@@ -10,6 +10,7 @@ google-cloud-pubsub
 google-cloud-firestore
 google-cloud-logging
 google-cloud-storage
+google-api-core
 
 # Google Cloud-Bibliotheken für die Interaktion mit GCP-Diensten
 # google-cloud-pubsub==2.19.4

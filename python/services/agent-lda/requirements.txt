@@ -1,9 +1,10 @@
 # Pin protobuf to a stable version compatible with google-cloud libraries
 # protobuf==3.20.3
+protobuf
 
 # Web-Framework, um Pub/Sub-Nachrichten per HTTP-Push zu empfangen
-Flask==3.0.3
-gunicorn==23.0.0
+Flask
+gunicorn
 
 # Google Cloud-Bibliotheken (neueste stabile Versionen)
 google-cloud-pubsub
@@ -12,7 +13,3 @@ google-cloud-logging
 google-cloud-storage
 google-api-core
 
-# Google Cloud-Bibliotheken für die Interaktion mit GCP-Diensten
-# google-cloud-pubsub==2.19.4
-# google-cloud-firestore==2.16.0
-# google-cloud-logging==3.8.0

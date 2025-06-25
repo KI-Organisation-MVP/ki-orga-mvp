@@ -1,3 +1,18 @@
+# =================================================================
+# TODO: Aktuell nutzen beide Build-Trigger (pr-checks und build-lda-on-main-push) die gleiche 
+# cloudbuild.yaml. Das ist funktional, aber der pr-checks-Trigger würde eigentlich nur den Linter-Schritt
+# benötigen, nicht die Docker-Build-Schritte. Für die Zukunft könnten wir eine separate 
+# cloudbuild-pr.yaml nur für die Checks erstellen, um die PR-Checks noch schneller zu machen.
+# =================================================================
+# Diese Datei definiert die Schritte, die Google Cloud Build ausführen soll,
+# wenn ein Push auf den Branch 'main' erfolgt.
+# Sie baut ein Docker-Image für den LDA-Service und pusht es in das Artifact Registry.
+# Die Protobuf-Dateien werden auf Qualität und Konsistenz geprüft, bevor das Image gebaut wird.
+# Die Protobuf-Dateien befinden sich im Verzeichnis 'proto' und die Dockerfile im Verzeichnis 'python/services/agent-lda'.
+# Die fertige 'buf'-Anwendung wird heruntergeladen und verwendet, um die Protobuf-Dateien zu prüfen.
+# Die Docker-Images werden in der Region 'europe-west3' gespeichert.
+# Die Images werden in das Artifact Registry unter dem Pfad 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID' gepusht.
+# =================================================================
 steps:
   # =================================================================
   # SCHRITT 1: Protobuf-Dateien auf Qualität und Konsistenz prüfen

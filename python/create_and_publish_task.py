@@ -68,6 +68,10 @@ def create_and_publish_task():
 
     # 2. Task in binäre Daten serialisieren (Protobuf)
     data_to_send = task.SerializeToString()
+    # --- NEUE DIAGNOSE-AUSGABE ---
+    print("--- Eindeutige DNA der Nachricht (Hex) ---")
+    print(data_to_send.hex())
+    print("----------------------------------------")
     logging.info(f"Erstelle Task mit ID: {task.task_id}")
 
     # 3. Nachricht mit Fehlerbehandlung an Pub/Sub veröffentlichen

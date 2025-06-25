@@ -52,8 +52,14 @@ def index():
     # Wir werden sie später hier dekodieren und verarbeiten.
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
         try:
+            logging.info(f"PS pubsub_message: {pubsub_message["data"]}")
             # Dekodiert die Base64-Daten in einen Byte-String
             data_bytes = base64.b64decode(pubsub_message["data"])
+
+            # --- NEUE DIAGNOSE-ZEILE ---
+            logging.info(f"Empfangene Nachrichten-DNA (Hex): {data_bytes.hex()}")
+
+
             # Wandelt den Byte-String in unser strukturiertes Task-Objekt um
             task.FromString(data_bytes)
             logging.info(f"Successfully parsed Task object: id={task.task_id}, title='{task.title}'")

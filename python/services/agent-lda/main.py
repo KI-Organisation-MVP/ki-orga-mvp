@@ -54,7 +54,6 @@ def index():
     # In einer echten Nachricht sind die Daten base64-kodiert.
     if isinstance(pubsub_message, dict) and "data" in pubsub_message:
         try:
-            logging.info(f"PS pubsub_message: {pubsub_message['data']}")
             # Dekodiert die Base64-Daten in einen Byte-String
             try:
                 data_bytes = base64.b64decode(pubsub_message["data"])

@@ -26,6 +26,8 @@ enum TaskPriority {
 }
 
 // Das zentrale Objekt zur Steuerung und Verfolgung von Arbeit in der KI-Organisation.
+//TODO: Refactoring aller Task-Attribute-Namen von snake_case in camelCase, um Konsistenz
+// zu gewährleisten, bspw. "task_id" zu "taskId", "created_at" zu "createdAt" usw. (Grund: Wenn json_format.MessageToJson ein Protobuf-Objekt in JSON umwandelt, wandelt es Feldnamen wie assigned_to_agent_id automatisch in assignedToAgentId um)
 message Task {
   // Die global eindeutige ID der Aufgabe (z.B. eine UUID).
   string task_id = 1;

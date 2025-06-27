@@ -26,17 +26,17 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from google.protobuf import duration_pb2 as google_dot_protobuf_dot_duration__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n)kiorga/datamodel/test_result_report.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"q\n\x0eTestCaseResult\x12\x11\n\ttest_name\x18\x01 \x01(\t\x12\x0e\n\x06passed\x18\x02 \x01(\x08\x12+\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\x12\x0f\n\x07\x64\x65tails\x18\x04 \x01(\t\"\xd4\x02\n\x10TestResultReport\x12\x11\n\treport_id\x18\x01 \x01(\t\x12\x0f\n\x07task_id\x18\x02 \x01(\t\x12\x18\n\x10source_commit_id\x18\x03 \x01(\t\x12\x14\n\x0cqaa_agent_id\x18\x04 \x01(\t\x12\x37\n\x13\x65xecution_timestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x37\n\x0eoverall_status\x18\x06 \x01(\x0e\x32\x1f.kiorga.datamodel.TestRunStatus\x12\x17\n\x0ftotal_tests_run\x18\x07 \x01(\x05\x12\x1a\n\x12total_tests_passed\x18\x08 \x01(\x05\x12\x34\n\ntest_cases\x18\t \x03(\x0b\x32 .kiorga.datamodel.TestCaseResult\x12\x0f\n\x07summary\x18\n \x01(\t*\x95\x01\n\rTestRunStatus\x12\x1f\n\x1bTEST_RUN_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n\x16TEST_RUN_STATUS_PASSED\x10\x01\x12\x1a\n\x16TEST_RUN_STATUS_FAILED\x10\x02\x12+\n\'TEST_RUN_STATUS_COMPLETED_WITH_WARNINGS\x10\x03\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n)kiorga/datamodel/test_result_report.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1egoogle/protobuf/duration.proto\"p\n\x0eTestCaseResult\x12\x10\n\x08testName\x18\x01 \x01(\t\x12\x0e\n\x06passed\x18\x02 \x01(\x08\x12+\n\x08\x64uration\x18\x03 \x01(\x0b\x32\x19.google.protobuf.Duration\x12\x0f\n\x07\x64\x65tails\x18\x04 \x01(\t\"\xc7\x02\n\x10TestResultReport\x12\x10\n\x08reportId\x18\x01 \x01(\t\x12\x0e\n\x06taskId\x18\x02 \x01(\t\x12\x16\n\x0esourceCommitId\x18\x03 \x01(\t\x12\x12\n\nqaaAgentId\x18\x04 \x01(\t\x12\x36\n\x12\x65xecutionTimestamp\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x36\n\roverallStatus\x18\x06 \x01(\x0e\x32\x1f.kiorga.datamodel.TestRunStatus\x12\x15\n\rtotalTestsRun\x18\x07 \x01(\x05\x12\x18\n\x10totalTestsPassed\x18\x08 \x01(\x05\x12\x33\n\ttestCases\x18\t \x03(\x0b\x32 .kiorga.datamodel.TestCaseResult\x12\x0f\n\x07summary\x18\n \x01(\t*\x95\x01\n\rTestRunStatus\x12\x1f\n\x1bTEST_RUN_STATUS_UNSPECIFIED\x10\x00\x12\x1a\n\x16TEST_RUN_STATUS_PASSED\x10\x01\x12\x1a\n\x16TEST_RUN_STATUS_FAILED\x10\x02\x12+\n\'TEST_RUN_STATUS_COMPLETED_WITH_WARNINGS\x10\x03\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'kiorga.datamodel.test_result_report_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_TESTRUNSTATUS']._serialized_start=587
-  _globals['_TESTRUNSTATUS']._serialized_end=736
+  _globals['_TESTRUNSTATUS']._serialized_start=573
+  _globals['_TESTRUNSTATUS']._serialized_end=722
   _globals['_TESTCASERESULT']._serialized_start=128
-  _globals['_TESTCASERESULT']._serialized_end=241
-  _globals['_TESTRESULTREPORT']._serialized_start=244
-  _globals['_TESTRESULTREPORT']._serialized_end=584
+  _globals['_TESTCASERESULT']._serialized_end=240
+  _globals['_TESTRESULTREPORT']._serialized_start=243
+  _globals['_TESTRESULTREPORT']._serialized_end=570
 # @@protoc_insertion_point(module_scope)

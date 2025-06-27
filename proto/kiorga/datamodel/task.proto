@@ -30,7 +30,7 @@ enum TaskPriority {
 // zu gewährleisten, bspw. "task_id" zu "taskId", "created_at" zu "createdAt" usw. (Grund: Wenn json_format.MessageToJson ein Protobuf-Objekt in JSON umwandelt, wandelt es Feldnamen wie assigned_to_agent_id automatisch in assignedToAgentId um)
 message Task {
   // Die global eindeutige ID der Aufgabe (z.B. eine UUID).
-  string task_id = 1;
+  string taskId = 1;
 
   // Kurzer, menschenlesbarer Titel der Aufgabe, z.B. für Listenansichten.
   string title = 2;
@@ -39,41 +39,41 @@ message Task {
   string description = 3;
 
   // Der aktuelle Bearbeitungsstatus der Aufgabe.
-  TaskStatus status = 4;
+  TaskStatus taskStatus = 4;
 
   // Die Priorität der Aufgabe zur Steuerung der Abarbeitungsreihenfolge.
-  TaskPriority priority = 5;
+  TaskPriority taskPriority = 5;
 
   // Die ID des Agenten, der für die Ausführung der Aufgabe verantwortlich ist.
-  string assigned_to_agent_id = 6;
+  string assignedToAgentId = 6;
 
   // Die ID des Agenten, der die Aufgabe ursprünglich erstellt hat.
-  string creator_agent_id = 7;
+  string creatorAgentId = 7;
 
   // Zeitstempel der Erstellung der Aufgabe.
-  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp createdAt = 8;
 
   // Zeitstempel der letzten Aktualisierung. Wird bei jeder Änderung aktualisiert.
-  google.protobuf.Timestamp updated_at = 9;
+  google.protobuf.Timestamp updatedAt = 9;
 
   // Eine Liste von 'task_id's, die abgeschlossen sein müssen, bevor diese Aufgabe starten kann.
   repeated string dependencies = 10;
 
   // Schlüssel-Wert-Paare für Verweise auf Input-Daten (z.B. Pfade in Cloud Storage).
-  map<string, string> input_data_references = 11;
+  map<string, string> inputDataReferences = 11;
 
   // Schlüssel-Wert-Paare für Verweise auf Output-Daten.
-  map<string, string> output_data_references = 12;
+  map<string, string> outputDataReferences = 12;
 
   // Textuelle Beschreibung der Erfolgskriterien ("Definition of Done").
-  string success_criteria_metrics = 13;
+  string successCriteriaMetrics = 13;
 
   // Optional: Die ID der übergeordneten Aufgabe zur Abbildung von Hierarchien.
-  string parent_task_id = 14;
+  string parentTaskId = 14;
 
   // Optional: Das Fälligkeitsdatum für die Aufgabe, um die Priorisierung zu unterstützen.
-  google.protobuf.Timestamp due_date = 15;
+  google.protobuf.Timestamp dueDate = 15;
 
   // Wenn 'true', erfordert die Aufgabe menschliche Freigaben an definierten Punkten.
-  bool co_pilot_mode = 16;
+  bool coPilotMode = 16;
 }

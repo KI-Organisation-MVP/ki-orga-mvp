@@ -24,7 +24,7 @@ def create_and_publish_task():
     
     # 1. Task-Objekt erstellen und mit Testdaten befüllen
     task = task_pb2.Task()
-    task.task_id = str(uuid.uuid4())  # Eindeutige ID generieren
+    task.taskId = str(uuid.uuid4())  # Eindeutige ID generieren
     task.title = "Finaler Test V2: Direkt-Publish eines neuen Auftrags"
     task.description = "Dieser Task wurde direkt aus einem Python-Skript veröffentlicht, um Encoding-Fehler zu vermeiden."
     
@@ -32,19 +32,19 @@ def create_and_publish_task():
     task.status = TaskStatus.TASK_STATUS_PENDING
     
     task.priority = TaskPriority.TASK_PRIORITY_URGENT
-    task.creator_agent_id = "system-test-script"
+    task.creatorAgentId = "system-test-script"
     
     # Aktuellen Zeitstempel setzen
     now = Timestamp()
     now.GetCurrentTime()
-    task.created_at.CopyFrom(now)
+    task.createdAt.CopyFrom(now)
 
     # Beispiel für eine einfache Validierungsfunktion
     def validate_task(task):
         """Prüft, ob alle Pflichtfelder im Task-Objekt korrekt gesetzt sind."""
         errors = []
-        if not task.task_id:
-            errors.append("task_id fehlt")
+        if not task.taskId:
+            errors.append("taskId fehlt")
         if not task.title or len(task.title.strip()) == 0:
             errors.append("title fehlt oder ist leer")
         if not task.description or len(task.description.strip()) == 0:
@@ -53,11 +53,11 @@ def create_and_publish_task():
             errors.append("status ist ungültig")
         if task.priority not in [TaskPriority.TASK_PRIORITY_LOW, TaskPriority.TASK_PRIORITY_MEDIUM, TaskPriority.TASK_PRIORITY_HIGH, TaskPriority.TASK_PRIORITY_URGENT, TaskPriority.TASK_PRIORITY_OPTIONAL]:
             errors.append("priority ist ungültig")
-        if not task.creator_agent_id:
-            errors.append("creator_agent_id fehlt")
+        if not task.creatorAgentId:
+            errors.append("creatorAgentId fehlt")
         # created_at kann z.B. auf 0 geprüft werden
-        if not task.created_at or task.created_at.seconds == 0:
-            errors.append("created_at fehlt oder ist ungültig")
+        if not task.createdAt or task.createdAt.seconds == 0:
+            errors.append("createdAt fehlt oder ist ungültig")
         return errors
 
     # Anwendung der Validierung vor der Serialisierung:
@@ -72,7 +72,7 @@ def create_and_publish_task():
     json_string_to_send = json_format.MessageToJson(task)
 
     # --- NEUE DIAGNOSE-AUSGABE ---
-    logging.info(f"Erstelle Task mit ID: {task.task_id}")
+    logging.info(f"Erstelle Task mit ID: {task.taskId}")
     logging.info(f"Sende als JSON-String: {json_string_to_send}")
 
     data_to_send = json_string_to_send.encode('utf-8')

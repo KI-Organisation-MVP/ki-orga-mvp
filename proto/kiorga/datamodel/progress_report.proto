@@ -10,26 +10,26 @@ import "google/protobuf/timestamp.proto";
 // der an einer Aufgabe arbeitet.
 message ProgressReport {
   // Eindeutige ID für diesen spezifischen Bericht (z.B. eine UUID).
-  string report_id = 1;
+  string reportId = 1;
 
   // Die ID der Aufgabe (aus Task.task_id), auf die sich dieser Bericht bezieht.
-  string task_id = 2;
+  string taskId = 2;
 
   // Die ID des Agenten, der diesen Bericht sendet.
-  string reporting_agent_id = 3;
+  string reportingAgentId = 3;
 
   // Der genaue Zeitstempel, wann der Bericht erstellt wurde.
-  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp createdAt = 4;
 
   // Eine prägnante Zusammenfassung des aktuellen Stands und der letzten Aktivitäten.
   // z.B. "Code-Generierung für Service X abgeschlossen, starte jetzt Unit-Tests."
-  string status_text = 5;
+  string statusText = 5;
 
   // Eine Zahl von 0 bis 100, die den geschätzten Fortschritt anzeigt.
-  int32 percentage_complete = 6;
+  int32 percentageComplete = 6;
 
   // Ein optionales Feld, um auf Hindernisse oder Probleme hinzuweisen,
   // die den Fortschritt verlangsamen, aber noch keinen Fehlschlag bedeuten.
   // z.B. "API-Endpunkt von Drittanbieter antwortet langsam."
-  string blockers_or_issues = 7;
+  string blockersOrIssues = 7;
 }

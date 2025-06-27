@@ -25,17 +25,17 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#kiorga/datamodel/feedback_log.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe8\x01\n\x0b\x46\x65\x65\x64\x62\x61\x63kLog\x12\x13\n\x0b\x66\x65\x65\x64\x62\x61\x63k_id\x18\x01 \x01(\t\x12\x30\n\x0csubmitted_at\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x31\n\x0csubmitter_id\x18\x03 \x01(\x0e\x32\x1b.kiorga.datamodel.Submitter\x12\x16\n\x0etarget_task_id\x18\x04 \x01(\t\x12\x15\n\rfeedback_text\x18\x05 \x01(\t\x12\x30\n\x06rating\x18\x06 \x01(\x0e\x32 .kiorga.datamodel.FeedbackRating*S\n\tSubmitter\x12\x19\n\x15SUBMITTER_UNSPECIFIED\x10\x00\x12\x14\n\x10SUBMITTER_MARCEL\x10\x01\x12\x15\n\x11SUBMITTER_PHILIPP\x10\x02*\xc0\x01\n\x0e\x46\x65\x65\x64\x62\x61\x63kRating\x12\x1f\n\x1b\x46\x45\x45\x44\x42\x41\x43K_RATING_UNSPECIFIED\x10\x00\x12\x1d\n\x19\x46\x45\x45\x44\x42\x41\x43K_RATING_VERY_POOR\x10\x01\x12\x18\n\x14\x46\x45\x45\x44\x42\x41\x43K_RATING_POOR\x10\x02\x12\x1b\n\x17\x46\x45\x45\x44\x42\x41\x43K_RATING_NEUTRAL\x10\x03\x12\x18\n\x14\x46\x45\x45\x44\x42\x41\x43K_RATING_GOOD\x10\x04\x12\x1d\n\x19\x46\x45\x45\x44\x42\x41\x43K_RATING_VERY_GOOD\x10\x05\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#kiorga/datamodel/feedback_log.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe2\x01\n\x0b\x46\x65\x65\x64\x62\x61\x63kLog\x12\x12\n\nfeedbackId\x18\x01 \x01(\t\x12/\n\x0bsubmittedAt\x18\x02 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x30\n\x0bsubmitterId\x18\x03 \x01(\x0e\x32\x1b.kiorga.datamodel.Submitter\x12\x14\n\x0ctargetTaskId\x18\x04 \x01(\t\x12\x14\n\x0c\x66\x65\x65\x64\x62\x61\x63kText\x18\x05 \x01(\t\x12\x30\n\x06rating\x18\x06 \x01(\x0e\x32 .kiorga.datamodel.FeedbackRating*S\n\tSubmitter\x12\x19\n\x15SUBMITTER_UNSPECIFIED\x10\x00\x12\x14\n\x10SUBMITTER_MARCEL\x10\x01\x12\x15\n\x11SUBMITTER_PHILIPP\x10\x02*\xc0\x01\n\x0e\x46\x65\x65\x64\x62\x61\x63kRating\x12\x1f\n\x1b\x46\x45\x45\x44\x42\x41\x43K_RATING_UNSPECIFIED\x10\x00\x12\x1d\n\x19\x46\x45\x45\x44\x42\x41\x43K_RATING_VERY_POOR\x10\x01\x12\x18\n\x14\x46\x45\x45\x44\x42\x41\x43K_RATING_POOR\x10\x02\x12\x1b\n\x17\x46\x45\x45\x44\x42\x41\x43K_RATING_NEUTRAL\x10\x03\x12\x18\n\x14\x46\x45\x45\x44\x42\x41\x43K_RATING_GOOD\x10\x04\x12\x1d\n\x19\x46\x45\x45\x44\x42\x41\x43K_RATING_VERY_GOOD\x10\x05\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'kiorga.datamodel.feedback_log_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_SUBMITTER']._serialized_start=325
-  _globals['_SUBMITTER']._serialized_end=408
-  _globals['_FEEDBACKRATING']._serialized_start=411
-  _globals['_FEEDBACKRATING']._serialized_end=603
+  _globals['_SUBMITTER']._serialized_start=319
+  _globals['_SUBMITTER']._serialized_end=402
+  _globals['_FEEDBACKRATING']._serialized_start=405
+  _globals['_FEEDBACKRATING']._serialized_end=597
   _globals['_FEEDBACKLOG']._serialized_start=91
-  _globals['_FEEDBACKLOG']._serialized_end=323
+  _globals['_FEEDBACKLOG']._serialized_end=317
 # @@protoc_insertion_point(module_scope)

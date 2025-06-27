@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#kiorga/datamodel/final_report.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe3\x02\n\x0b\x46inalReport\x12\x11\n\treport_id\x18\x01 \x01(\t\x12\x0f\n\x07task_id\x18\x02 \x01(\t\x12\x1a\n\x12\x65xecuting_agent_id\x18\x03 \x01(\t\x12\x38\n\x14\x63ompletion_timestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x33\n\x0c\x66inal_status\x18\x05 \x01(\x0e\x32\x1d.kiorga.datamodel.FinalStatus\x12\x0f\n\x07summary\x18\x06 \x01(\t\x12W\n\x16output_data_references\x18\x07 \x03(\x0b\x32\x37.kiorga.datamodel.FinalReport.OutputDataReferencesEntry\x1a;\n\x19OutputDataReferencesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*_\n\x0b\x46inalStatus\x12\x1c\n\x18\x46INAL_STATUS_UNSPECIFIED\x10\x00\x12\x18\n\x14\x46INAL_STATUS_SUCCESS\x10\x01\x12\x18\n\x14\x46INAL_STATUS_FAILURE\x10\x02\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#kiorga/datamodel/final_report.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\"\xdb\x02\n\x0b\x46inalReport\x12\x10\n\x08reportId\x18\x01 \x01(\t\x12\x0e\n\x06taskId\x18\x02 \x01(\t\x12\x18\n\x10\x65xecutingAgentId\x18\x03 \x01(\t\x12\x37\n\x13\x63ompletionTimestamp\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x32\n\x0b\x66inalStatus\x18\x05 \x01(\x0e\x32\x1d.kiorga.datamodel.FinalStatus\x12\x0f\n\x07summary\x18\x06 \x01(\t\x12U\n\x14outputDataReferences\x18\x07 \x03(\x0b\x32\x37.kiorga.datamodel.FinalReport.OutputDataReferencesEntry\x1a;\n\x19OutputDataReferencesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01*_\n\x0b\x46inalStatus\x12\x1c\n\x18\x46INAL_STATUS_UNSPECIFIED\x10\x00\x12\x18\n\x14\x46INAL_STATUS_SUCCESS\x10\x01\x12\x18\n\x14\x46INAL_STATUS_FAILURE\x10\x02\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,10 +34,10 @@ if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_FINALREPORT_OUTPUTDATAREFERENCESENTRY']._loaded_options = None
   _globals['_FINALREPORT_OUTPUTDATAREFERENCESENTRY']._serialized_options = b'8\001'
-  _globals['_FINALSTATUS']._serialized_start=448
-  _globals['_FINALSTATUS']._serialized_end=543
+  _globals['_FINALSTATUS']._serialized_start=440
+  _globals['_FINALSTATUS']._serialized_end=535
   _globals['_FINALREPORT']._serialized_start=91
-  _globals['_FINALREPORT']._serialized_end=446
-  _globals['_FINALREPORT_OUTPUTDATAREFERENCESENTRY']._serialized_start=387
-  _globals['_FINALREPORT_OUTPUTDATAREFERENCESENTRY']._serialized_end=446
+  _globals['_FINALREPORT']._serialized_end=438
+  _globals['_FINALREPORT_OUTPUTDATAREFERENCESENTRY']._serialized_start=379
+  _globals['_FINALREPORT_OUTPUTDATAREFERENCESENTRY']._serialized_end=438
 # @@protoc_insertion_point(module_scope)

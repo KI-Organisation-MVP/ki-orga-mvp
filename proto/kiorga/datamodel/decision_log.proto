@@ -10,17 +10,17 @@ import "google/protobuf/timestamp.proto";
 // eines Agenten während der Bearbeitung einer Aufgabe.
 message DecisionLog {
   // Die eindeutige ID dieses Log-Eintrags.
-  string decision_id = 1;
+  string decisionId = 1;
 
   // Die ID des Tasks, zu dem dieser Log-Eintrag gehört.
   // Essentiell für die Zuordnung und für Abfragen.
-  string task_id = 2;
+  string taskId = 2;
 
   // Der exakte Zeitstempel, wann der Eintrag vom Agenten erstellt wurde.
-  google.protobuf.Timestamp logged_at = 3;
+  google.protobuf.Timestamp loggedAt = 3;
 
   // Die ID des Agenten, der diesen Eintrag erstellt hat.
-  string creator_agent_id = 4;
+  string creatorAgentId = 4;
 
   // Die eigentliche Entscheidung oder durchgeführte Aktion, kurz und prägnant.
   // Z.B.: "Starte Code-Analyse mit dem Linter-Tool."
@@ -32,5 +32,5 @@ message DecisionLog {
 
   // Eine Liste von verworfenen Alternativen, die ebenfalls in Betracht
   // gezogen wurden. Z.B.: ["Manuelle Prüfung des Codes", "Einen anderen Linter verwenden"]
-  repeated string alternatives_considered = 7;
+  repeated string alternativesConsidered = 7;
 }

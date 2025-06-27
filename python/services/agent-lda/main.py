@@ -86,7 +86,7 @@ def index():
                 logging.error(f"Protobuf-Deserialisierung fehlgeschlagen: {e}", exc_info=True)
                 return "Bad Request: protobuf parse error", 422
 
-            logging.info(f"Successfully parsed Task object from JSON: id={task.task_id}, title='{task.title}'")
+            logging.info(f"Successfully parsed Task object from JSON: id={task.taskId}, title='{task.title}'")
 
             # Validiert das Task-Objekt
             validation_errors = validate_task(task)
@@ -96,15 +96,15 @@ def index():
                 return f"Bad Request: {error_msg}", 422
             logging.info("Task-Objekt erfolgreich validiert.")
             # Loggt die wichtigsten Felder des Task-Objekts
-            logging.info(f"Task-Details: ID={task.task_id}, Title='{task.title}', Status={task.status}, Priority={task.priority}, Creator='{task.creator_agent_id}'")
+            logging.info(f"Task-Details: ID={task.taskId}, Title='{task.title}', Status={task.status}, Priority={task.priority}, Creator='{task.creatorAgentId}'")
             
             
             # Task in Firestore speichern
             try:
                 task_dict = json_format.MessageToDict(task)
-                doc_ref = db.collection("tasks").document(task.task_id)
+                doc_ref = db.collection("tasks").document(task.taskId)
                 doc_ref.set(task_dict)
-                logging.info(f"Task {task.task_id} successfully saved to Firestore.")
+                logging.info(f"Task {task.taskId} successfully saved to Firestore.")
             except Exception as e:
                 logging.error(f"Fehler beim Speichern in Firestore: {e}", exc_info=True)
                 return "Internal Server Error: Firestore write error", 500
@@ -113,8 +113,8 @@ def index():
             # +++ NEUE DELEGATIONS-LOGIK +++
             # -------------------------------
             # Annahme: Der LDA delegiert diesen Task direkt an den SDA-BE
-            if task.task_id: # Nur delegieren, wenn eine gültige Task-ID vorhanden ist
-                logging.info(f"Delegating task {task.task_id} to SDA-BE...")
+            if task.taskId: # Nur delegieren, wenn eine gültige Task-ID vorhanden ist
+                logging.info(f"Delegating task {task.taskId} to SDA-BE...")
                 
                 # Wir senden den gleichen Task weiter. Die Nachricht ist der JSON-String.
                 data_to_send = json_string_received.encode('utf-8')
@@ -133,10 +133,10 @@ def index():
             update_data = {
                 "status": task_pb2.TaskStatus.TASK_STATUS_IN_PROGRESS,
                 "assignedToAgentId": "agent-sda-be", # Wichtig: Firestore nutzt camelCase für Feldnamen aus JSON
-                "updated_at": firestore.SERVER_TIMESTAMP # Setzt den Zeitstempel auf die aktuelle Serverzeit   
+                "updatedAt": firestore.SERVER_TIMESTAMP # Setzt den Zeitstempel auf die aktuelle Serverzeit   
             }
             doc_ref.update(update_data)
-            logging.info(f"Task {task.task_id} status updated to IN_PROGRESS and assigned to sda-be.")
+            logging.info(f"Task {task.taskId} status updated to IN_PROGRESS and assigned to sda-be.")
             # --------------------------------------------------
 
         except Exception as e:
@@ -157,8 +157,8 @@ def validate_task(task):
     Gibt eine Liste von Fehlern zurück, falls vorhanden.
     """
     errors = []
-    if not task.task_id:
-        errors.append("task_id fehlt")
+    if not task.taskId:
+        errors.append("taskId fehlt")
     if not task.title or len(task.title.strip()) == 0:
         errors.append("title fehlt oder ist leer")
     if not task.description or len(task.description.strip()) == 0:
@@ -187,10 +187,10 @@ def validate_task(task):
     if task.priority not in valid_priority_values:
         errors.append(f"priority ist ungültig: {task.priority}")
 
-    if not task.creator_agent_id:
-        errors.append("creator_agent_id fehlt")
-    if not task.created_at or getattr(task.created_at, "seconds", 0) == 0:
-        errors.append("created_at fehlt oder ist ungültig")
+    if not task.creatorAgentId:
+        errors.append("creatorAgentId fehlt")
+    if not task.createdAt or getattr(task.createdAt, "seconds", 0) == 0:
+        errors.append("createdAt fehlt oder ist ungültig")
     return errors
 
 if __name__ == "__main__":

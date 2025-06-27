@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&kiorga/datamodel/progress_report.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\"\xce\x01\n\x0eProgressReport\x12\x11\n\treport_id\x18\x01 \x01(\t\x12\x0f\n\x07task_id\x18\x02 \x01(\t\x12\x1a\n\x12reporting_agent_id\x18\x03 \x01(\t\x12.\n\ncreated_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x13\n\x0bstatus_text\x18\x05 \x01(\t\x12\x1b\n\x13percentage_complete\x18\x06 \x01(\x05\x12\x1a\n\x12\x62lockers_or_issues\x18\x07 \x01(\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&kiorga/datamodel/progress_report.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc5\x01\n\x0eProgressReport\x12\x10\n\x08reportId\x18\x01 \x01(\t\x12\x0e\n\x06taskId\x18\x02 \x01(\t\x12\x18\n\x10reportingAgentId\x18\x03 \x01(\t\x12-\n\tcreatedAt\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x12\n\nstatusText\x18\x05 \x01(\t\x12\x1a\n\x12percentageComplete\x18\x06 \x01(\x05\x12\x18\n\x10\x62lockersOrIssues\x18\x07 \x01(\tb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,5 +33,5 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'kiorga.datamodel.progress_r
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_PROGRESSREPORT']._serialized_start=94
-  _globals['_PROGRESSREPORT']._serialized_end=300
+  _globals['_PROGRESSREPORT']._serialized_end=291
 # @@protoc_insertion_point(module_scope)

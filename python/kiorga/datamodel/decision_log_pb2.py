@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#kiorga/datamodel/decision_log.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\"\xc2\x01\n\x0b\x44\x65\x63isionLog\x12\x13\n\x0b\x64\x65\x63ision_id\x18\x01 \x01(\t\x12\x0f\n\x07task_id\x18\x02 \x01(\t\x12-\n\tlogged_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x18\n\x10\x63reator_agent_id\x18\x04 \x01(\t\x12\x10\n\x08\x64\x65\x63ision\x18\x05 \x01(\t\x12\x11\n\treasoning\x18\x06 \x01(\t\x12\x1f\n\x17\x61lternatives_considered\x18\x07 \x03(\tb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n#kiorga/datamodel/decision_log.proto\x12\x10kiorga.datamodel\x1a\x1fgoogle/protobuf/timestamp.proto\"\xbc\x01\n\x0b\x44\x65\x63isionLog\x12\x12\n\ndecisionId\x18\x01 \x01(\t\x12\x0e\n\x06taskId\x18\x02 \x01(\t\x12,\n\x08loggedAt\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x16\n\x0e\x63reatorAgentId\x18\x04 \x01(\t\x12\x10\n\x08\x64\x65\x63ision\x18\x05 \x01(\t\x12\x11\n\treasoning\x18\x06 \x01(\t\x12\x1e\n\x16\x61lternativesConsidered\x18\x07 \x03(\tb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,5 +33,5 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'kiorga.datamodel.decision_l
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_DECISIONLOG']._serialized_start=91
-  _globals['_DECISIONLOG']._serialized_end=285
+  _globals['_DECISIONLOG']._serialized_end=279
 # @@protoc_insertion_point(module_scope)

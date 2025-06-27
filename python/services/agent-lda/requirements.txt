@@ -6,6 +6,9 @@ protobuf
 Flask
 gunicorn
 
+# Protolint-Binärdatei für Protokoll-Formatierung
+protolint-bin 
+
 # Google Cloud-Bibliotheken (neueste stabile Versionen)
 google-cloud-pubsub
 google-cloud-firestore

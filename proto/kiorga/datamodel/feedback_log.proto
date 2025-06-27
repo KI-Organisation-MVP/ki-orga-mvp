@@ -26,19 +26,19 @@ enum FeedbackRating {
 // Erfasst das strukturierte, korrektive Feedback der menschlichen System-Guardianen.
 message FeedbackLog {
   // Die eindeutige ID dieses Feedback-Eintrags.
-  string feedback_id = 1;
+  string feedbackId = 1;
 
   // Zeitstempel, wann das Feedback abgegeben wurde.
-  google.protobuf.Timestamp submitted_at = 2;
+  google.protobuf.Timestamp submittedAt = 2;
 
   // Der Absender des Feedbacks.
-  Submitter submitter_id = 3;
+  Submitter submitterId = 3;
 
   // Optional: Die ID des Tasks, auf den sich das Feedback bezieht.
-  string target_task_id = 4;
+  string targetTaskId = 4;
 
   // Der qualitative Inhalt des Feedbacks.
-  string feedback_text = 5;
+  string feedbackText = 5;
 
   // Eine optionale, quantitative Bewertung.
   FeedbackRating rating = 6;

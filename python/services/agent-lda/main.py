@@ -103,8 +103,16 @@ def index():
             try:
                 task_dict = json_format.MessageToDict(task)
                 doc_ref = db.collection("tasks").document(task.task_id)
-                doc_ref.set(task_dict)
-                logging.info(f"Task {task.task_id} successfully saved to Firestore.")
+                
+                # IDEMPOTENZ-PRÜFUNG: Wurde dieser Task bereits zugewiesen?
+                task_snapshot = doc_ref.get()
+                if task_snapshot.exists and task_snapshot.to_dict().get("assignedToAgentId"):
+                    logging.warning(f"Task {task.task_id} wurde bereits an {task_snapshot.to_dict().get('assignedToAgentId')} zugewiesen. Breche die Verarbeitung ab.")
+                    return "", 204 # Nachricht bestätigen, um erneute Zustellung zu verhindern
+
+                doc_ref.set(task_dict, merge=True) # merge=True, um bestehende Felder nicht zu überschreiben
+                logging.info(f"Task {task.task_id} successfully saved/updated in Firestore.")
+
             except Exception as e:
                 logging.error(f"Fehler beim Speichern in Firestore: {e}", exc_info=True)
                 return "Internal Server Error: Firestore write error", 500

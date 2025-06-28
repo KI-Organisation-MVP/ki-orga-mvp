@@ -66,6 +66,30 @@ steps:
       ]
     id: 'Push Docker Image to Artifact Registry'
 
+  # =================================================================
+  # SCHRITT 4: Docker Image in Cloud Run deployen
+  # =================================================================
+  - name: 'gcr.io/google-appengine/exec-wrapper'
+    args:
+      - '-i'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
+      - '--'
+      - 'gcloud'
+      - 'run'
+      - 'deploy'
+      - 'lda-service' # Der Name deines Cloud Run Services
+      - '--image'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
+      - '--region'
+      - 'europe-west3'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated' # Erlaubt öffentliche Aufrufe, z.B. von Pub/Sub
+      # Hier werden die Umgebungsvariablen für die deployte Anwendung gesetzt.
+      # Die Werte werden direkt aus den Build-Substitution-Variablen oder als Klartext übergeben.
+      - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent-sda-be,AGENT_ID_LDA=agent-lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
+    id: 'Deploy to Cloud Run'
+
 images:
   - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
 

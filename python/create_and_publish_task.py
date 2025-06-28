@@ -1,20 +1,28 @@
 import uuid
 import os
 import logging
+from dotenv import load_dotenv
 from kiorga.datamodel import task_pb2
 # Wir importieren die korrekten Enums
+from kiorga.utils.validation import validate_task
 from kiorga.datamodel.task_pb2 import TaskStatus, TaskPriority
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.cloud import pubsub_v1
 from google.api_core import exceptions
 from google.protobuf import json_format
 
+# Lädt die Umgebungsvariablen aus der .env-Datei im Root-Verzeichnis
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
+
 # Sauberes Logging konfigurieren
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # --- Konfiguration ---
-PROJECT_ID = "ki-orga-mvp"  # GCP-Projekt-ID
-TOPIC_ID = "task_assignments"  # Pub/Sub-Topic-Name
+PROJECT_ID = os.getenv("GCP_PROJECT")
+ASSIGN_TOPIC_ID = os.getenv("TOPIC_LDA_TASKS") # Topic für die Zuweisung von Aufgaben
+
+if not all([PROJECT_ID, ASSIGN_TOPIC_ID]):
+    raise EnvironmentError("Fehlende Umgebungsvariablen: GCP_PROJECT, TASK_ASSIGNMENTS_TOPIC müssen gesetzt sein.")
 # ---------------------
 
 def create_and_publish_task():
@@ -39,27 +47,6 @@ def create_and_publish_task():
     now.GetCurrentTime()
     task.created_at.CopyFrom(now)
 
-    # Beispiel für eine einfache Validierungsfunktion
-    def validate_task(task):
-        """Prüft, ob alle Pflichtfelder im Task-Objekt korrekt gesetzt sind."""
-        errors = []
-        if not task.task_id:
-            errors.append("task_id fehlt")
-        if not task.title or len(task.title.strip()) == 0:
-            errors.append("title fehlt oder ist leer")
-        if not task.description or len(task.description.strip()) == 0:
-            errors.append("description fehlt oder ist leer")
-        if task.status not in [TaskStatus.TASK_STATUS_PENDING, TaskStatus.TASK_STATUS_COMPLETED, TaskStatus.TASK_STATUS_IN_PROGRESS, TaskStatus.TASK_STATUS_FAILED]:
-            errors.append("status ist ungültig")
-        if task.priority not in [TaskPriority.TASK_PRIORITY_LOW, TaskPriority.TASK_PRIORITY_MEDIUM, TaskPriority.TASK_PRIORITY_HIGH, TaskPriority.TASK_PRIORITY_URGENT, TaskPriority.TASK_PRIORITY_OPTIONAL]:
-            errors.append("priority ist ungültig")
-        if not task.creator_agent_id:
-            errors.append("creator_agent_id fehlt")
-        # created_at kann z.B. auf 0 geprüft werden
-        if not task.created_at or task.created_at.seconds == 0:
-            errors.append("created_at fehlt oder ist ungültig")
-        return errors
-
     # Anwendung der Validierung vor der Serialisierung:
     validation_errors = validate_task(task)
     if validation_errors:
@@ -80,7 +67,7 @@ def create_and_publish_task():
     # 3. Nachricht mit Fehlerbehandlung an Pub/Sub veröffentlichen
     try:
         publisher = pubsub_v1.PublisherClient()
-        topic_path = publisher.topic_path(PROJECT_ID, TOPIC_ID)
+        topic_path = publisher.topic_path(PROJECT_ID, ASSIGN_TOPIC_ID)
         
         # Nachricht veröffentlichen (asynchron)
         future = publisher.publish(topic_path, data=data_to_send)

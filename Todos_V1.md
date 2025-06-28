@@ -62,32 +62,22 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
   Änderungen sicher zu machen. Sie beheben die kritischsten Probleme zuerst.
 
 
-   1. DONE (JSON-Strings): Einheitliches Nachrichtenformat (Empfehlung 2b): Klären und vereinheitlichen
-      Sie sofort das Pub/Sub-Nachrichtenformat. Entscheiden Sie, ob Sie rohe
-      Protobuf-Bytes (empfohlen) oder JSON-Strings senden, und stellen Sie sicher,
-      dass agent-lda und agent-sda-be denselben Mechanismus verwenden. Grund: Dies
-      ist eine grundlegende Inkonsistenz in der Service-Kommunikation und eine
-      potenzielle Fehlerquelle.
+   1. DONE (JSON-Strings): ~~Einheitliches Nachrichtenformat (Empfehlung 2b): Klären und vereinheitlichen Sie sofort das Pub/Sub-Nachrichtenformat. Entscheiden Sie, ob Sie rohe Protobuf-Bytes (empfohlen) oder JSON-Strings senden, und stellen Sie sicher, dass agent-lda und agent-sda-be denselben Mechanismus verwenden. Grund: Dies ist eine grundlegende Inkonsistenz in der Service-Kommunikation und eine potenzielle Fehlerquelle.~~
 
 
    2. DONE: Dead-Letter-Queues (DLQ) & Idempotente Verarbeitung (Empfehlung 3a & 3b):
-      Richten Sie DLQs für Ihre Pub/Sub-Abonnements ein und stellen Sie die
-      Idempotenz der Endpunkte sicher. Grund: Dies verhindert Datenverlust und
-      Endlosschleifen bei temporären Fehlern und ist die wichtigste Maßnahme zur
-      Erhöhung der Systemstabilität.
+      ~~Richten Sie DLQs für Ihre Pub/Sub-Abonnements ein und stellen Sie die Idempotenz der Endpunkte sicher. Grund: Dies verhindert Datenverlust und Endlosschleifen bei temporären Fehlern und ist die wichtigste Maßnahme zur Erhöhung der Systemstabilität.~~ 
 
       DONE: 
-      gcloud pubsub subscriptions update lda-task-assignments-sub --dead-letter-topic=task_assignments_dlq --max-delivery-attempts=5 
+      ~~gcloud pubsub subscriptions update lda-task-assignments-sub --dead-letter-topic=task_assignments_dlq --max-delivery-attempts=5~~
+      ~~gcloud pubsub subscriptions update lda-tasks-sub --dead-letter-topic=lda_tasks_dlq --max-delivery-attempts=5~~
       OPEN: 
       gcloud pubsub subscriptions update <your-subscription-for-agent-sda-be> --dead-letter-topic=sda_be_tasks_dlq --max-delivery-attempts=5
       gcloud pubsub subscriptions update <your-subscription-for-final-reports> --dead-letter-topic=final_reports_dlq --max-delivery-attempts=5
 
 
-   3. Zentralisierte Konfiguration (Empfehlung 1a): Ersetzen Sie alle
-      hartcodierten Werte (Topic-Namen, Agenten-IDs, Projekt-ID) durch
-      Umgebungsvariablen. Grund: Dies ist eine Voraussetzung für fast alle
-      weiteren Schritte, insbesondere für das Testen in verschiedenen Umgebungen
-      und die Skalierung der CI/CD-Pipelines.
+   3. DONE: Zentralisierte Konfiguration (Empfehlung 1a): ~~Ersetzen Sie alle hartcodierten Werte (Topic-Namen, Agenten-IDs, Projekt-ID) durch Umgebungsvariablen. Grund: Dies ist eine Voraussetzung für fast alle weiteren Schritte, insbesondere für das Testen in verschiedenen Umgebungen und die Skalierung der CI/CD-Pipelines.~~
+
 
 *   Phase 2: Code-Qualität & Wartbarkeit
 

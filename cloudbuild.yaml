@@ -69,12 +69,8 @@ steps:
   # =================================================================
   # SCHRITT 4: Docker Image in Cloud Run deployen
   # =================================================================
-  - name: 'gcr.io/google-appengine/exec-wrapper'
+  - name: 'gcr.io/cloud-builders/gcloud'
     args:
-      - '-i'
-      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
-      - '--'
-      - 'gcloud'
       - 'run'
       - 'deploy'
       - 'lda-service' # Der Name deines Cloud Run Services

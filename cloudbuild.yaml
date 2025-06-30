@@ -82,8 +82,17 @@ steps:
       - 'managed'
       - '--allow-unauthenticated' # Erlaubt öffentliche Aufrufe, z.B. von Pub/Sub
       # Hier werden die Umgebungsvariablen für die deployte Anwendung gesetzt.
-      # Die Werte werden direkt aus den Build-Substitution-Variablen oder als Klartext übergeben.
-      - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent-sda-be,AGENT_ID_LDA=agent-lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
+      # Die Verwendung von `--update-env-vars` für jede Variable verbessert die Lesbarkeit und Wartbarkeit.
+      # Für eine saubere Bereitstellung, die keine alten Variablen beibehält, ist es am besten,
+      # zuerst alle Variablen mit `--clear-env-vars` zu löschen und sie dann einzeln zu setzen.
+      - '--clear-env-vars'
+      - '--update-env-vars=GCP_PROJECT=${PROJECT_ID}'
+      - '--update-env-vars=AGENT_ID_SDA_BE=agent-sda-be'
+      - '--update-env-vars=AGENT_ID_LDA=agent-lda'
+      - '--update-env-vars=TOPIC_REPORTS=final_reports'
+      - '--update-env-vars=TOPIC_SDA_BE_TASKS=sda_be_tasks'
+      - '--update-env-vars=TOPIC_LDA_TASKS=lda_tasks'
+      - '--update-env-vars=TOPIC_TASK_ASSIGNMENTS=task_assignments'
     id: 'Deploy to Cloud Run'
 
 images:

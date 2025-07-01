@@ -9,6 +9,7 @@ from datetime import datetime
 from google.cloud import firestore
 from google.cloud import pubsub_v1
 from google.cloud import monitoring_v3
+from google.cloud.monitoring_v3 import types
 from google.protobuf import json_format
 from google.protobuf.timestamp_pb2 import Timestamp
 
@@ -47,7 +48,7 @@ class TaskProcessor:
         series.metric.type = f"custom.googleapis.com/{metric_type}"
         # KORREKTUR: Der MetricKind muss explizit gesetzt werden, damit die API weiß,
         # wie sie den Datenpunkt interpretieren soll (z.B. als Momentaufnahme oder als ansteigenden Wert).
-        series.metric_kind = monitoring_v3.Metric.MetricKind[metric_kind]
+        series.metric_kind = types.MetricDescriptor.MetricKind[metric_kind]
         if labels:
             for key, val in labels.items():
                 series.metric.labels[key] = val
@@ -61,7 +62,7 @@ class TaskProcessor:
 
         point = monitoring_v3.Point(
             interval=interval,
-            **{f"value": monitoring_v3.TypedValue(**{value_type: value})}
+            **{f"value": types.TypedValue(**{value_type: value})}
         )
         series.points.append(point)
 

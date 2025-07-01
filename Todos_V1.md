@@ -50,7 +50,7 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
 
 *   **Empfehlungen für die Skalierung:**
     *   **Strukturiertes Logging:** Verwenden Sie die `google-cloud-logging`-Bibliothek für Python. Diese formatiert Logs automatisch als JSON-Objekte, die in Cloud Logging leicht durchsuchbar und filterbar sind (z.B. "zeige mir alle Logs für `task_id=123`").
-    *   **Anwendungsmetriken:** Integrieren Sie benutzerdefinierte Metriken mit der Cloud Monitoring API. Verfolgen Sie wichtige KPIs wie die "Task-Verarbeitungszeit" oder die "Anzahl der fehlgeschlagenen Tasks pro Minute". Dies ermöglicht die Erstellung von Dashboards und Alarmen, um die Systemgesundheit proaktiv zu überwachen.
+    *   **Anwendungsmetriken:** Integriere benutzerdefinierte Metriken mit der Cloud Monitoring API. Schlage sinnvolle Metriken vor, so dass ich wichtige KPIs wie die "Task-Verarbeitungszeit" oder die "Anzahl der fehlgeschlagenen Tasks pro Minute" verfolgen kann. Dies ermöglicht die Erstellung von Dashboards und Alarmen, um die Systemgesundheit proaktiv zu überwachen.
 
 
 ### Reihenfolge der Umsetzung
@@ -99,10 +99,7 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
   sie.
 
 
-   6. Optimierte CI/CD-Pipelines & Docker Builds (Empfehlung 1b & 1c): Trennen Sie
-      die PR-Pipeline von der Build-Pipeline und implementieren Sie
-      Multi-Stage-Docker-Builds. Grund: Dies beschleunigt die Entwicklung und
-      reduziert die Kosten für Builds und Container-Hosting.
+   6. DONE: ~~Optimierte CI/CD-Pipelines & Docker Builds (Empfehlung 1b & 1c): Trennen Sie die PR-Pipeline von der Build-Pipeline und implementieren Sie Multi-Stage-Docker-Builds. Grund: Dies beschleunigt die Entwicklung und reduziert die Kosten für Builds und Container-Hosting.~~
 
 
    7. Anwendungsmetriken (Empfehlung 4b): Integrieren Sie benutzerdefinierte

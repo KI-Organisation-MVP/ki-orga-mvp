@@ -34,5 +34,8 @@ COPY python/services/agent-sda-be/ ./services/agent-sda-be/
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Setze den Startbefehl für den Container.
+ENV PYTHONPATH="/app:$PYTHONPATH"
+
+# Setze den Startbefehl für den Container.
 WORKDIR /app/services/agent-sda-be
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

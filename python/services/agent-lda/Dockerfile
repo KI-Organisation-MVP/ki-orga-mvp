@@ -19,4 +19,4 @@ COPY python/services/agent-lda/ .
 
 # Starte den Gunicorn-Server.
 # Wir sagen ihm, er soll das Arbeitsverzeichnis auf den Ordner unseres Services setzen.
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--chdir", "services/agent-lda", "main:app"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

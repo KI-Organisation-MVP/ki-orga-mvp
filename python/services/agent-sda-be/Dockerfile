@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r services/agent-sda-be/requirements.txt
 RUN pip freeze
 
 # Kopiere den Rest des Codes
-COPY python/services/agent-sda-fe/ .
+COPY python/services/agent-sda-be/ .
 
 # Starte den Gunicorn-Server für diesen spezifischen Service
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--chdir", "services/agent-sda-be", "main:app"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

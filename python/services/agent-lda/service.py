@@ -48,7 +48,7 @@ class TaskProcessor:
         series.metric.type = f"custom.googleapis.com/{metric_type}"
         # KORREKTUR: Der MetricKind muss explizit gesetzt werden, damit die API weiß,
         # wie sie den Datenpunkt interpretieren soll (z.B. als Momentaufnahme oder als ansteigenden Wert).
-        series.metric_kind = types.MetricDescriptor.MetricKind[metric_kind]
+        series.metric_kind = monitoring_v3.MetricDescriptor.MetricKind[metric_kind]
         if labels:
             for key, val in labels.items():
                 series.metric.labels[key] = val

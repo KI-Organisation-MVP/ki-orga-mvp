@@ -1,5 +1,6 @@
 import os
 import logging
+import google.cloud.logging
 from fastapi import FastAPI, Request, HTTPException
 from google.cloud import firestore
 from google.cloud import pubsub_v1
@@ -11,10 +12,11 @@ from service import TaskProcessor
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
 # === Logging-Konfiguration ===
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+# Richtet das strukturierte Logging für Google Cloud ein.
+# Dies sorgt dafür, dass Logs als JSON-Payloads gesendet werden, was die
+# Filterung und Analyse in der Google Cloud Console erheblich verbessert.
+client = google.cloud.logging.Client()
+client.setup_logging(log_level=logging.INFO)
 
 # === Globale Clients und Konfiguration ===
 try:

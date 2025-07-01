@@ -17,7 +17,7 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
     *   **Optimierte CI/CD-Pipelines:**
         *   Erstellen Sie eine separate `cloudbuild-pr.yaml` nur für Linting und Tests, um die PR-Checks zu beschleunigen.
         *   Nutzen Sie das Caching von Cloud Build (`options: { machineType: 'E2_HIGHCPU_8' }` kann Caching aktivieren) und Docker-Layer-Caching, um die Build-Zeiten drastisch zu reduzieren.
-    *   **Multi-Stage Docker Builds:** Verwenden Sie Multi-Stage-Builds in den `Dockerfile`s. Eine "builder"-Stage kann die Dependencies installieren, und die finale Stage kopiert nur die notwendigen Artefakte. Das Ergebnis sind kleinere, sicherere und schneller startende Docker-Images.
+    *   **Multi-Stage Docker Builds:** Verwende Multi-Stage-Builds in den `Dockerfile`s. Eine "builder"-Stage kann die Dependencies installieren, und die finale Stage kopiert nur die notwendigen Artefakte. Das Ergebnis sind kleinere, sicherere und schneller startende Docker-Images.
 
 #### **2. Code & Anwendungslogik (`main.py` in beiden Services)**
 
@@ -86,18 +86,10 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
   strukturieren, dass er leicht zu warten, zu testen und zu erweitern ist.
 
 
-   4. Service-Layer-Abstraktion (Empfehlung 2a): Refaktorisieren Sie die
-      main.py-Dateien. Ziehen Sie die Geschäftslogik aus den FastAPI-Routen in
-      separate Klassen oder Module. Grund: Dies ist die wichtigste Maßnahme zur
-      Verbesserung der Code-Qualität. Es entkoppelt die Logik vom Web-Framework
-      und ist die Grundlage für saubere Unit-Tests.
+   4. DONE: ~~Service-Layer-Abstraktion (Empfehlung 2a): Refaktorisieren Sie die main.py-Dateien. Ziehen Sie die Geschäftslogik aus den FastAPI-Routen in separate Klassen oder Module. Grund: Dies ist die wichtigste Maßnahme zur Verbesserung der Code-Qualität. Es entkoppelt die Logik vom Web-Framework und ist die Grundlage für saubere Unit-Tests.~~
 
 
-   5. Strukturiertes Logging (Empfehlung 4a): Führen Sie strukturiertes Logging
-      mit der google-cloud-logging-Bibliothek ein. Grund: Sie werden dies während
-      des Refactorings in Schritt 4 ohnehin benötigen. Gutes Logging ist
-      unerlässlich, um das Verhalten in einer verteilten Architektur
-      nachzuvollziehen.
+   5. DONE: ~~Strukturiertes Logging (Empfehlung 4a): Führen Sie strukturiertes Logging mit der google-cloud-logging-Bibliothek ein. Grund: Sie werden dies während des Refactorings in Schritt 4 ohnehin benötigen. Gutes Logging ist unerlässlich, um das Verhalten in einer verteilten Architektur nachzuvollziehen.~~
 
 
   Phase 3: Effizienz & Optimierung (Niedrigere Priorität)

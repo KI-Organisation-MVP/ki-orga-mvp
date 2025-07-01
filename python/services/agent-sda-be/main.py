@@ -1,5 +1,6 @@
 import os
 import logging
+import google.cloud.logging
 
 from fastapi import FastAPI, Request, HTTPException
 from google.cloud import firestore
@@ -12,7 +13,9 @@ from service import TaskHandler
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '..', '.env'))
 
 # === Logging-Konfiguration ===
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Richtet das strukturierte Logging für Google Cloud ein.
+client = google.cloud.logging.Client()
+client.setup_logging(log_level=logging.INFO)
 
 # === Globale Clients und Konfiguration ===
 try:

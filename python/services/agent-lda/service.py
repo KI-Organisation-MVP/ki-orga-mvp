@@ -57,7 +57,6 @@ class TaskProcessor:
 
         try:
             data_bytes = base64.b64decode(pubsub_message["data"])
-            logging.info(f"Empfangene Nachrichten-DNA (Hex): {data_bytes.hex()}")
             json_string_received = data_bytes.decode('utf-8')
             logging.info(f"Empfangene JSON-Daten: {json_string_received}")
             return json_string_received

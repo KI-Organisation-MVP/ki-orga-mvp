@@ -1,0 +1,41 @@
+# cloudbuild-pr.yaml
+# Diese Pipeline wird für Pull-Request-Checks verwendet.
+# Sie führt nur Linting und (zukünftig) Tests aus, um schnelle Feedback-Zyklen zu gewährleisten.
+
+steps:
+  # =================================================================
+  # SCHRITT 1: Protobuf-Dateien auf Qualität und Konsistenz prüfen
+  # =================================================================
+  - name: 'gcr.io/cloud-builders/wget'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Lade die fertige 'buf'-Anwendung (v1.54.0) herunter..."
+        wget https://github.com/bufbuild/buf/releases/download/v1.54.0/buf-Linux-x86_64 -O /workspace/buf
+        chmod +x /workspace/buf
+        echo "Führe Buf Linter aus..."
+        /workspace/buf lint --config /workspace/buf.yaml /workspace/proto
+    id: 'Lint Proto Files'
+
+  # =================================================================
+  # SCHRITT 2: Python Linting & Tests (Platzhalter)
+  # =================================================================
+  # TODO: Fügen Sie hier Schritte für das Linting (z.B. mit black, isort, ruff)
+  # und das Ausführen von Unit-Tests (z.B. mit pytest) hinzu.
+  # Beispiel für die Zukunft:
+  # - name: 'python:3.11'
+  #   entrypoint: 'bash'
+  #   args:
+  #     - '-c'
+  #     - |
+  #       pip install -r python/requirements.txt
+  #       pip install -r python/services/agent-lda/requirements.txt
+  #       pip install -r python/services/agent-sda-be/requirements.txt
+  #       pip install pytest ruff
+  #       ruff check .
+  #       pytest python/services/
+  #   id: 'Lint and Test Python Code'
+
+options:
+  # WIR NUTZEN KEIN CACHING, da es zu viel kostet aktuell! 

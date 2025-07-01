@@ -9,6 +9,7 @@ from datetime import datetime
 from google.cloud import firestore
 from google.cloud import pubsub_v1
 from google.cloud import monitoring_v3
+from google.cloud.monitoring_v3 import types
 from google.protobuf import json_format
 from google.protobuf.timestamp_pb2 import Timestamp
 
@@ -52,7 +53,7 @@ class TaskHandler:
 
         point = monitoring_v3.Point(
             interval=interval,
-            **{f"value": monitoring_v3.TypedValue(**{value_type: value})}
+            **{f"value": types.TypedValue(**{value_type: value})}
         )
         series.points.append(point)
 

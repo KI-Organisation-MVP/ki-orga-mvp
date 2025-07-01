@@ -17,17 +17,17 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
     *   **Optimierte CI/CD-Pipelines:**
         *   Erstellen Sie eine separate `cloudbuild-pr.yaml` nur für Linting und Tests, um die PR-Checks zu beschleunigen.
         *   Nutzen Sie das Caching von Cloud Build (`options: { machineType: 'E2_HIGHCPU_8' }` kann Caching aktivieren) und Docker-Layer-Caching, um die Build-Zeiten drastisch zu reduzieren.
-    *   **Multi-Stage Docker Builds:** Verwenden Sie Multi-Stage-Builds in den `Dockerfile`s. Eine "builder"-Stage kann die Dependencies installieren, und die finale Stage kopiert nur die notwendigen Artefakte. Das Ergebnis sind kleinere, sicherere und schneller startende Docker-Images.
+    *   **Multi-Stage Docker Builds:** Verwende Multi-Stage-Builds in den `Dockerfile`s. Eine "builder"-Stage kann die Dependencies installieren, und die finale Stage kopiert nur die notwendigen Artefakte. Das Ergebnis sind kleinere, sicherere und schneller startende Docker-Images.
 
 #### **2. Code & Anwendungslogik (`main.py` in beiden Services)**
 
 *   **Analyse:**
-    *   Die Geschäftslogik ist direkt in den Flask-Routen-Handlern (`index()`-Funktion) implementiert. Bei zunehmender Komplexität wird dies schnell unübersichtlich und schwer zu testen.
+    *   Die Geschäftslogik ist direkt in den FastAPI-Routen-Handlern (`index()`-Funktion) implementiert. Bei zunehmender Komplexität wird dies schnell unübersichtlich und schwer zu testen.
     *   Die Deserialisierung in `agent-lda` ist inkonsistent. Es wird `json_format.Parse` verwendet, während `agent-sda-be` `task.FromString` nutzt. Dies deutet auf eine Unklarheit im Nachrichtenformat hin (wird ein JSON-String oder ein serialisierter Protobuf-Byte-String gesendet?). Für eine robuste Kommunikation muss das Format eindeutig sein.
     *   Die Validierungslogik (`validate_task`) ist manuell und muss für jede Änderung am Protobuf-Schema von Hand angepasst werden.
 
 *   **Empfehlungen für die Skalierung:**
-    *   **Service-Layer-Abstraktion:** Trennen Sie die Geschäftslogik von der Web-Framework-Logik. Erstellen Sie Klassen oder Module, die die Kernlogik kapseln (z.B. eine `TaskProcessor`-Klasse). Die Flask-Route sollte nur noch die Anfrage entgegennehmen, die Daten an den Service-Layer übergeben und die Antwort zurücksenden. Dies verbessert die Testbarkeit und Wartbarkeit erheblich.
+    *   **Service-Layer-Abstraktion:** Trennen Sie die Geschäftslogik von der Web-Framework-Logik. Erstellen Sie Klassen oder Module, die die Kernlogik kapseln (z.B. eine `TaskProcessor`-Klasse). Die FastAPI-Route sollte nur noch die Anfrage entgegennehmen, die Daten an den Service-Layer übergeben und die Antwort zurücksenden. Dies verbessert die Testbarkeit und Wartbarkeit erheblich.
     *   **Einheitliches Nachrichtenformat:** Entscheiden Sie sich für *ein* Format für Pub/Sub-Nachrichten. Serialisierte Protobuf-Bytes (`SerializeToString()`) sind performanter und kompakter als JSON. Stellen Sie sicher, dass alle Services denselben Mechanismus zum Serialisieren und Deserialisieren verwenden.
     *   **Automatisierte Validierung:** Erwägen Sie Tools wie `protoc-gen-validate`, die Validierungsregeln direkt im `.proto`-File definieren. Dies generiert Code, der die Validierung automatisiert, reduziert Boilerplate-Code in Python und stellt sicher, dass Daten und Validierungsregeln synchron bleiben.
 
@@ -50,7 +50,7 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
 
 *   **Empfehlungen für die Skalierung:**
     *   **Strukturiertes Logging:** Verwenden Sie die `google-cloud-logging`-Bibliothek für Python. Diese formatiert Logs automatisch als JSON-Objekte, die in Cloud Logging leicht durchsuchbar und filterbar sind (z.B. "zeige mir alle Logs für `task_id=123`").
-    *   **Anwendungsmetriken:** Integrieren Sie benutzerdefinierte Metriken mit der Cloud Monitoring API. Verfolgen Sie wichtige KPIs wie die "Task-Verarbeitungszeit" oder die "Anzahl der fehlgeschlagenen Tasks pro Minute". Dies ermöglicht die Erstellung von Dashboards und Alarmen, um die Systemgesundheit proaktiv zu überwachen.
+    *   **Anwendungsmetriken:** Integriere benutzerdefinierte Metriken mit der Cloud Monitoring API. Schlage sinnvolle Metriken vor, so dass ich wichtige KPIs wie die "Task-Verarbeitungszeit" oder die "Anzahl der fehlgeschlagenen Tasks pro Minute" verfolgen kann. Dies ermöglicht die Erstellung von Dashboards und Alarmen, um die Systemgesundheit proaktiv zu überwachen.
 
 
 ### Reihenfolge der Umsetzung
@@ -86,18 +86,10 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
   strukturieren, dass er leicht zu warten, zu testen und zu erweitern ist.
 
 
-   4. Service-Layer-Abstraktion (Empfehlung 2a): Refaktorisieren Sie die
-      main.py-Dateien. Ziehen Sie die Geschäftslogik aus den Flask-Routen in
-      separate Klassen oder Module. Grund: Dies ist die wichtigste Maßnahme zur
-      Verbesserung der Code-Qualität. Es entkoppelt die Logik vom Web-Framework
-      und ist die Grundlage für saubere Unit-Tests.
+   4. DONE: ~~Service-Layer-Abstraktion (Empfehlung 2a): Refaktorisieren Sie die main.py-Dateien. Ziehen Sie die Geschäftslogik aus den FastAPI-Routen in separate Klassen oder Module. Grund: Dies ist die wichtigste Maßnahme zur Verbesserung der Code-Qualität. Es entkoppelt die Logik vom Web-Framework und ist die Grundlage für saubere Unit-Tests.~~
 
 
-   5. Strukturiertes Logging (Empfehlung 4a): Führen Sie strukturiertes Logging
-      mit der google-cloud-logging-Bibliothek ein. Grund: Sie werden dies während
-      des Refactorings in Schritt 4 ohnehin benötigen. Gutes Logging ist
-      unerlässlich, um das Verhalten in einer verteilten Architektur
-      nachzuvollziehen.
+   5. DONE: ~~Strukturiertes Logging (Empfehlung 4a): Führen Sie strukturiertes Logging mit der google-cloud-logging-Bibliothek ein. Grund: Sie werden dies während des Refactorings in Schritt 4 ohnehin benötigen. Gutes Logging ist unerlässlich, um das Verhalten in einer verteilten Architektur nachzuvollziehen.~~
 
 
   Phase 3: Effizienz & Optimierung (Niedrigere Priorität)
@@ -107,10 +99,7 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
   sie.
 
 
-   6. Optimierte CI/CD-Pipelines & Docker Builds (Empfehlung 1b & 1c): Trennen Sie
-      die PR-Pipeline von der Build-Pipeline und implementieren Sie
-      Multi-Stage-Docker-Builds. Grund: Dies beschleunigt die Entwicklung und
-      reduziert die Kosten für Builds und Container-Hosting.
+   6. DONE: ~~Optimierte CI/CD-Pipelines & Docker Builds (Empfehlung 1b & 1c): Trennen Sie die PR-Pipeline von der Build-Pipeline und implementieren Sie Multi-Stage-Docker-Builds. Grund: Dies beschleunigt die Entwicklung und reduziert die Kosten für Builds und Container-Hosting.~~
 
 
    7. Anwendungsmetriken (Empfehlung 4b): Integrieren Sie benutzerdefinierte

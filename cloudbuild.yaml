@@ -1,9 +1,4 @@
 # =================================================================
-# TODO: Aktuell nutzen beide Build-Trigger (pr-checks und build-lda-on-main-push) die gleiche 
-# cloudbuild.yaml. Das ist funktional, aber der pr-checks-Trigger würde eigentlich nur den Linter-Schritt
-# benötigen, nicht die Docker-Build-Schritte. Für die Zukunft könnten wir eine separate 
-# cloudbuild-pr.yaml nur für die Checks erstellen, um die PR-Checks noch schneller zu machen.
-# =================================================================
 # Diese Datei definiert die Schritte, die Google Cloud Build ausführen soll,
 # wenn ein Push auf den Branch 'main' erfolgt.
 # Sie baut ein Docker-Image für den LDA-Service und pusht es in das Artifact Registry.
@@ -90,5 +85,4 @@ images:
   - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
 
 options:
-  #TODO: Cashing-Möglichkeiten prüfen
   logging: CLOUD_LOGGING_ONLY

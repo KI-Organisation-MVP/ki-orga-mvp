@@ -1,22 +1,41 @@
-# Verwende ein offizielles, schlankes Python-Image als Basis
-FROM python:3.12.3
+# ===== STAGE 1: Builder =====
+# Diese Stage dient dazu, die Python-Abhängigkeiten zu installieren.
+FROM python:3.12.3 as builder
 
-# Setze das Arbeitsverzeichnis im Container
+# Setze das Arbeitsverzeichnis
 WORKDIR /app
 
-# Kopiere den GESAMTEN Inhalt unseres python-Verzeichnisses in den Container.
-# Dadurch haben wir jetzt /app/kiorga/ und /app/services/ im Container.
-COPY python/ .
+# Installiere nur die Abhängigkeiten. Durch das Kopieren der requirements.txt
+# und die Installation vor dem Kopieren des restlichen Codes nutzen wir das Docker-Layer-Caching.
+COPY python/requirements.txt .
+COPY python/services/agent-lda/requirements.txt ./services/agent-lda/requirements.txt
 
-# Installiere die Python-Abhängigkeiten
+# Erstelle ein virtuelles Environment und installiere die Pakete dorthin.
+# Dies isoliert die Abhängigkeiten und macht es einfach, sie in die nächste Stage zu kopieren.
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
 RUN pip install --no-cache-dir -r services/agent-lda/requirements.txt
 
-# NEUER DIAGNOSE-SCHRITT: Gib alle installierten Pakete und ihre Versionen im Build-Log aus
-RUN pip freeze
+# ===== STAGE 2: Final =====
+# Diese Stage erstellt das finale, schlanke Image.
+FROM python:3.12.3-slim
 
-# Kopiere den Rest des Codes
-COPY python/services/agent-lda/ .
+# Setze das Arbeitsverzeichnis
+WORKDIR /app
 
-# Starte den Gunicorn-Server.
-# Wir sagen ihm, er soll das Arbeitsverzeichnis auf den Ordner unseres Services setzen.
+# Kopiere das virtuelle Environment aus der Builder-Stage.
+COPY --from=builder /opt/venv /opt/venv
+
+# Kopiere den Anwendungs-Code.
+# Wir kopieren das kiorga-Paket und den Service-Code.
+COPY python/kiorga ./kiorga
+COPY python/services/agent-lda/ ./services/agent-lda/
+
+# Aktiviere das virtuelle Environment für alle nachfolgenden Befehle.
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Setze den Startbefehl für den Container.
+# Wir wechseln in das Service-Verzeichnis, bevor wir den Server starten.
+WORKDIR /app/services/agent-lda
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

@@ -13,4 +13,4 @@ google-cloud-logging
 google-cloud-storage
 google-api-core
 google-cloud-monitoring
-python-dotenv==0.21.0
+python-dotenv

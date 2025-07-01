@@ -33,7 +33,7 @@ def create_and_publish_task():
     # 1. Task-Objekt erstellen und mit Testdaten befüllen
     task = task_pb2.Task()
     task.task_id = str(uuid.uuid4())  # Eindeutige ID generieren
-    task.title = "Finaler Test V2: Direkt-Publish eines neuen Auftrags"
+    task.title = "Erster Test nach der Umstellung von flask auf FastAPI"
     task.description = "Dieser Task wurde direkt aus einem Python-Skript veröffentlicht, um Encoding-Fehler zu vermeiden."
     
     # KORREKTER STATUS-WERT setzen

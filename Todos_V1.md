@@ -22,12 +22,12 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
 #### **2. Code & Anwendungslogik (`main.py` in beiden Services)**
 
 *   **Analyse:**
-    *   Die Geschäftslogik ist direkt in den Flask-Routen-Handlern (`index()`-Funktion) implementiert. Bei zunehmender Komplexität wird dies schnell unübersichtlich und schwer zu testen.
+    *   Die Geschäftslogik ist direkt in den FastAPI-Routen-Handlern (`index()`-Funktion) implementiert. Bei zunehmender Komplexität wird dies schnell unübersichtlich und schwer zu testen.
     *   Die Deserialisierung in `agent-lda` ist inkonsistent. Es wird `json_format.Parse` verwendet, während `agent-sda-be` `task.FromString` nutzt. Dies deutet auf eine Unklarheit im Nachrichtenformat hin (wird ein JSON-String oder ein serialisierter Protobuf-Byte-String gesendet?). Für eine robuste Kommunikation muss das Format eindeutig sein.
     *   Die Validierungslogik (`validate_task`) ist manuell und muss für jede Änderung am Protobuf-Schema von Hand angepasst werden.
 
 *   **Empfehlungen für die Skalierung:**
-    *   **Service-Layer-Abstraktion:** Trennen Sie die Geschäftslogik von der Web-Framework-Logik. Erstellen Sie Klassen oder Module, die die Kernlogik kapseln (z.B. eine `TaskProcessor`-Klasse). Die Flask-Route sollte nur noch die Anfrage entgegennehmen, die Daten an den Service-Layer übergeben und die Antwort zurücksenden. Dies verbessert die Testbarkeit und Wartbarkeit erheblich.
+    *   **Service-Layer-Abstraktion:** Trennen Sie die Geschäftslogik von der Web-Framework-Logik. Erstellen Sie Klassen oder Module, die die Kernlogik kapseln (z.B. eine `TaskProcessor`-Klasse). Die FastAPI-Route sollte nur noch die Anfrage entgegennehmen, die Daten an den Service-Layer übergeben und die Antwort zurücksenden. Dies verbessert die Testbarkeit und Wartbarkeit erheblich.
     *   **Einheitliches Nachrichtenformat:** Entscheiden Sie sich für *ein* Format für Pub/Sub-Nachrichten. Serialisierte Protobuf-Bytes (`SerializeToString()`) sind performanter und kompakter als JSON. Stellen Sie sicher, dass alle Services denselben Mechanismus zum Serialisieren und Deserialisieren verwenden.
     *   **Automatisierte Validierung:** Erwägen Sie Tools wie `protoc-gen-validate`, die Validierungsregeln direkt im `.proto`-File definieren. Dies generiert Code, der die Validierung automatisiert, reduziert Boilerplate-Code in Python und stellt sicher, dass Daten und Validierungsregeln synchron bleiben.
 
@@ -87,7 +87,7 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
 
 
    4. Service-Layer-Abstraktion (Empfehlung 2a): Refaktorisieren Sie die
-      main.py-Dateien. Ziehen Sie die Geschäftslogik aus den Flask-Routen in
+      main.py-Dateien. Ziehen Sie die Geschäftslogik aus den FastAPI-Routen in
       separate Klassen oder Module. Grund: Dies ist die wichtigste Maßnahme zur
       Verbesserung der Code-Qualität. Es entkoppelt die Logik vom Web-Framework
       und ist die Grundlage für saubere Unit-Tests.

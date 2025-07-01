@@ -37,5 +37,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Setze den Startbefehl für den Container.
 # Wir wechseln in das Service-Verzeichnis, bevor wir den Server starten.
+ENV PYTHONPATH="/app:$PYTHONPATH"
+
+# Setze den Startbefehl für den Container.
 WORKDIR /app/services/agent-lda
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

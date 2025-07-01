@@ -13,7 +13,6 @@ from google.protobuf.timestamp_pb2 import Timestamp
 
 from kiorga.datamodel import task_pb2
 from kiorga.utils.validation import validate_task
-from kiorga.utils.monitoring import MetricReporter
 
 class TaskProcessor:
     """
@@ -36,7 +35,6 @@ class TaskProcessor:
         self.project_id = project_id
         self.delegation_topic = delegation_topic
         self.assigned_agent_id = assigned_agent_id
-        self.metric_reporter = MetricReporter(project_id=self.project_id)
 
     def process_task(self, envelope: dict) -> None:
         """
@@ -45,8 +43,7 @@ class TaskProcessor:
         start_time = time.time()
         try:
             json_string_received, publish_timestamp = self._decode_pubsub_message(envelope)
-            receive_latency = time.time() - publish_timestamp
-            self.metric_reporter.send_metric("pubsub_message_receive_latency", receive_latency, "GAUGE", "double_value")
+            # receive_latency = time.time() - publish_timestamp # Metrik entfernt
 
             task = self._parse_and_validate_task(json_string_received)
 
@@ -57,12 +54,9 @@ class TaskProcessor:
             self._delegate_task_to_sda(json_string_received, task.task_id)
             self._update_task_after_delegation(doc_ref, task.task_id)
 
-            processing_time = time.time() - start_time
-            self.metric_reporter.send_metric("task_processing_time", processing_time, "GAUGE", "double_value", {"status": "success"})
-            logging.info(f"Task {task.task_id} erfolgreich verarbeitet in {processing_time:.4f} Sekunden.")
+            logging.info(f"Task {task.task_id} erfolgreich verarbeitet.")
 
         except Exception as e:
-            self.metric_reporter.send_metric("failed_tasks_count", 1, "CUMULATIVE", "int64_value", {"error_type": type(e).__name__})
             logging.error(f"Fehler bei der Task-Verarbeitung: {e}", exc_info=True)
             raise  # Fehler weiterleiten
 
@@ -102,8 +96,7 @@ class TaskProcessor:
             task = task_pb2.Task()
             json_format.Parse(json_string, task)
             logging.info(f"Successfully parsed Task object from JSON: id={task.task_id}, title='{task.title}'")
-        except Exception as e:
-            self.metric_reporter.send_metric("task_validation_errors", 1, "CUMULATIVE", "int64_value", {"error_type": type(e).__name__})
+        except Exception as e:            
             logging.error(f"Protobuf-Deserialisierung fehlgeschlagen: {e}", exc_info=True)
             raise ValueError("protobuf parse error") from e
 
@@ -111,7 +104,6 @@ class TaskProcessor:
         if validation_errors:
             error_msg = f"Fehlerhafte Felder: {validation_errors}"
             logging.error(error_msg)
-            self._send_metric("task_validation_errors", 1, "CUMULATIVE", "int64_value", {"error_type": "ValidationError"})
             raise ValueError(error_msg)
         
         logging.info("Task-Objekt erfolgreich validiert.")
@@ -126,7 +118,6 @@ class TaskProcessor:
             task_snapshot = doc_ref.get()
             if task_snapshot.exists and task_snapshot.to_dict().get("assignedToAgentId"):
                 logging.warning(f"Task {task.task_id} wurde bereits an {task_snapshot.to_dict().get('assignedToAgentId')} zugewiesen. Breche die Verarbeitung ab.")
-                self._send_metric("idempotency_check_hits", 1, "CUMULATIVE", "int64_value", {"reason": "already_assigned"})
                 return doc_ref, False
 
             doc_ref.set(task_dict, merge=True)

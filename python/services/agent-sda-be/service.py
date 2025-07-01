@@ -12,7 +12,6 @@ from google.protobuf import json_format
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from kiorga.datamodel import final_report_pb2, task_pb2
-from kiorga.utils.monitoring import MetricReporter
 
 
 class TaskHandler:
@@ -26,7 +25,6 @@ class TaskHandler:
         self.project_id = project_id
         self.agent_id = agent_id
         self.reports_topic = reports_topic
-        self.metric_reporter = MetricReporter(project_id=self.project_id)
 
     def handle_task(self, envelope: dict):
         """

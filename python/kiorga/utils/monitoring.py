@@ -26,9 +26,12 @@ class MetricReporter:
         """
         Constructs and sends a single time series data point to Cloud Monitoring.
         """
-        series = monitoring_v3.TimeSeries()
+        # Verwenden Sie 'types' für alle Datenstrukturen, um Konsistenz zu gewährleisten
+        # und Fehler wie "AttributeError: module 'google.cloud.monitoring_v3' has no attribute 'Metric'" zu vermeiden.
+        series = types.TimeSeries()
         series.metric.type = f"custom.googleapis.com/{metric_type}"
-        series.metric_kind = monitoring_v3.Metric.MetricKind[metric_kind]
+        # KORREKTUR: Die Metric-Klasse und ihre Enums befinden sich im 'types'-Modul.
+        series.metric_kind = types.Metric.MetricKind[metric_kind]
         if labels:
             for key, val in labels.items():
                 series.metric.labels[key] = val
@@ -42,9 +45,9 @@ class MetricReporter:
         now = time.time()
         seconds = int(now)
         nanos = int((now - seconds) * 10**9)
-        interval = monitoring_v3.TimeInterval(end_time=monitoring_v3.Timestamp(seconds=seconds, nanos=nanos))
+        interval = types.TimeInterval(end_time=types.Timestamp(seconds=seconds, nanos=nanos))
 
-        point = monitoring_v3.Point(interval=interval, value=types.TypedValue(**{value_type: value}))
+        point = types.Point(interval=interval, value=types.TypedValue(**{value_type: value}))
         series.points.append(point)
 
         try:

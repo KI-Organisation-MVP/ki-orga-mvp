@@ -31,7 +31,7 @@ class MetricReporter:
         series = types.TimeSeries()
         series.metric.type = f"custom.googleapis.com/{metric_type}"
         # KORREKTUR: Die Metric-Klasse und ihre Enums befinden sich im 'types'-Modul.
-        series.metric_kind = types.Metric.MetricKind[metric_kind]
+        series.metric_kind = types.metric.MetricKind[metric_kind]
         if labels:
             for key, val in labels.items():
                 series.metric.labels[key] = val

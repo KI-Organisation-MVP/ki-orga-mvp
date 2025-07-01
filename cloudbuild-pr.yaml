@@ -38,4 +38,4 @@ steps:
   #   id: 'Lint and Test Python Code'
 
 options:
-  # WIR NUTZEN KEIN CACHING, da es zu viel kostet aktuell! 
+  logging: CLOUD_LOGGING_ONLY 

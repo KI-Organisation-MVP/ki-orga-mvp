@@ -102,13 +102,14 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
    6. DONE: ~~Optimierte CI/CD-Pipelines & Docker Builds (Empfehlung 1b & 1c): Trennen Sie die PR-Pipeline von der Build-Pipeline und implementieren Sie Multi-Stage-Docker-Builds. Grund: Dies beschleunigt die Entwicklung und reduziert die Kosten für Builds und Container-Hosting.~~
 
 
-   7. Anwendungsmetriken (Empfehlung 4b): Integrieren Sie benutzerdefinierte
+   7. CANCELED: Anwendungsmetriken (Empfehlung 4b): Integrieren Sie benutzerdefinierte
       Metriken für Monitoring und Alarme. Grund: Sobald das System stabil und gut
       strukturiert ist, ist der nächste logische Schritt, seine Leistung proaktiv
       zu überwachen.
+      --> FUNKTIONIERT NICHT - google.cloud.monitoring_v3 konnte nicht erfolgreich mit GEMINI implementiert werden!
 
 
-   8. Automatisierte Validierung (Empfehlung 2c): Führen Sie Tools wie
+   8. CANCELED: Automatisierte Validierung (Empfehlung 2c): Führen Sie Tools wie
       protoc-gen-validate ein, um die Validierung aus den .proto-Dateien zu
       generieren. Grund: Dies ist eine "Quality of Life"-Verbesserung, die
       Boilerplate-Code reduziert, aber die manuelle Validierung ist für den Moment

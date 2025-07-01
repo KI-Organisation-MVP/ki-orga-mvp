@@ -8,14 +8,12 @@ from datetime import datetime
 
 from google.cloud import firestore
 from google.cloud import pubsub_v1
-from google.cloud import monitoring_v3
-from google.cloud.monitoring_v3 import types
 from google.protobuf import json_format
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from kiorga.datamodel import task_pb2
 from kiorga.utils.validation import validate_task
-
+from kiorga.utils.monitoring import MetricReporter
 
 class TaskProcessor:
     """
@@ -38,49 +36,7 @@ class TaskProcessor:
         self.project_id = project_id
         self.delegation_topic = delegation_topic
         self.assigned_agent_id = assigned_agent_id
-        self.monitoring_client = monitoring_v3.MetricServiceClient()
-
-    def _send_metric(self, metric_type: str, value: float, metric_kind: str, value_type: str, labels: dict = None):
-        """
-        Sendet eine benutzerdefinierte Metrik an Google Cloud Monitoring.
-        """
-        series = monitoring_v3.TimeSeries()
-        series.metric.type = f"custom.googleapis.com/{metric_type}"
-        # KORREKTUR: Der MetricKind muss explizit gesetzt werden, damit die API weiß,
-        # wie sie den Datenpunkt interpretieren soll (z.B. als Momentaufnahme oder als ansteigenden Wert).
-        series.metric_kind = monitoring_v3.MetricDescriptor.MetricKind[metric_kind]
-        if labels:
-            for key, val in labels.items():
-                series.metric.labels[key] = val
-
-        now = time.time()
-        seconds = int(now)
-        nanos = int((now - seconds) * 10**9)
-        interval = monitoring_v3.TimeInterval(
-            end_time=monitoring_v3.Timestamp(seconds=seconds, nanos=nanos)
-        )
-
-        point = monitoring_v3.Point(
-            interval=interval,
-            **{f"value": types.TypedValue(**{value_type: value})}
-        )
-        series.points.append(point)
-
-        # Die Ressource muss dem Cloud Run Service entsprechen.
-        # Dies ist ein Beispiel; die genaue Ressource hängt von der Deployment-Umgebung ab.
-        series.resource.type = "cloud_run_revision"
-        series.resource.labels["project_id"] = self.project_id
-        # Diese Labels müssen zur Laufzeit korrekt gesetzt werden, z.B. über Umgebungsvariablen
-        # die von Cloud Run bereitgestellt werden.
-        series.resource.labels["service_name"] = os.environ.get("K_SERVICE", "agent-lda-service")
-        series.resource.labels["revision_name"] = os.environ.get("K_REVISION", "latest")
-        series.resource.labels["location"] = os.environ.get("K_LOCATION", "europe-west3")
-
-        try:
-            self.monitoring_client.create_time_series(name=f"projects/{self.project_id}", time_series=[series])
-            logging.info(f"Metrik '{metric_type}' mit Wert {value} gesendet.")
-        except Exception as e:
-            logging.error(f"Fehler beim Senden der Metrik '{metric_type}': {e}", exc_info=True)
+        self.metric_reporter = MetricReporter(project_id=self.project_id)
 
     def process_task(self, envelope: dict) -> None:
         """
@@ -90,7 +46,7 @@ class TaskProcessor:
         try:
             json_string_received, publish_timestamp = self._decode_pubsub_message(envelope)
             receive_latency = time.time() - publish_timestamp
-            self._send_metric("pubsub_message_receive_latency", receive_latency, "GAUGE", "double_value")
+            self.metric_reporter.send_metric("pubsub_message_receive_latency", receive_latency, "GAUGE", "double_value")
 
             task = self._parse_and_validate_task(json_string_received)
 
@@ -102,11 +58,11 @@ class TaskProcessor:
             self._update_task_after_delegation(doc_ref, task.task_id)
 
             processing_time = time.time() - start_time
-            self._send_metric("task_processing_time", processing_time, "GAUGE", "double_value", {"status": "success"})
+            self.metric_reporter.send_metric("task_processing_time", processing_time, "GAUGE", "double_value", {"status": "success"})
             logging.info(f"Task {task.task_id} erfolgreich verarbeitet in {processing_time:.4f} Sekunden.")
 
         except Exception as e:
-            self._send_metric("failed_tasks_count", 1, "CUMULATIVE", "int64_value", {"error_type": type(e).__name__})
+            self.metric_reporter.send_metric("failed_tasks_count", 1, "CUMULATIVE", "int64_value", {"error_type": type(e).__name__})
             logging.error(f"Fehler bei der Task-Verarbeitung: {e}", exc_info=True)
             raise  # Fehler weiterleiten
 
@@ -145,9 +101,9 @@ class TaskProcessor:
         try:
             task = task_pb2.Task()
             json_format.Parse(json_string, task)
-            logging.info(f"Successfully parsed Task object from JSON: id={{task.task_id}}, title='{{task.title}}'")
+            logging.info(f"Successfully parsed Task object from JSON: id={task.task_id}, title='{task.title}'")
         except Exception as e:
-            self._send_metric("task_validation_errors", 1, "CUMULATIVE", "int64_value", {"error_type": type(e).__name__})
+            self.metric_reporter.send_metric("task_validation_errors", 1, "CUMULATIVE", "int64_value", {"error_type": type(e).__name__})
             logging.error(f"Protobuf-Deserialisierung fehlgeschlagen: {e}", exc_info=True)
             raise ValueError("protobuf parse error") from e
 
@@ -169,12 +125,12 @@ class TaskProcessor:
 
             task_snapshot = doc_ref.get()
             if task_snapshot.exists and task_snapshot.to_dict().get("assignedToAgentId"):
-                logging.warning(f"Task {{task.task_id}} wurde bereits an {{task_snapshot.to_dict().get('assignedToAgentId')}} zugewiesen. Breche die Verarbeitung ab.")
+                logging.warning(f"Task {task.task_id} wurde bereits an {task_snapshot.to_dict().get('assignedToAgentId')} zugewiesen. Breche die Verarbeitung ab.")
                 self._send_metric("idempotency_check_hits", 1, "CUMULATIVE", "int64_value", {"reason": "already_assigned"})
                 return doc_ref, False
 
             doc_ref.set(task_dict, merge=True)
-            logging.info(f"Task {{task.task_id}} successfully saved/updated in Firestore.")
+            logging.info(f"Task {task.task_id} successfully saved/updated in Firestore.")
             return doc_ref, True
         except Exception as e:
             logging.error(f"Fehler beim Speichern in Firestore: {e}", exc_info=True)
@@ -192,7 +148,7 @@ class TaskProcessor:
             topic_path = self.publisher.topic_path(self.project_id, self.delegation_topic)
             future = self.publisher.publish(topic_path, data=data_to_send)
             message_id = future.result(timeout=30)
-            logging.info(f"Successfully delegated task to '{{self.delegation_topic}}' topic. Message ID: {message_id}")
+            logging.info(f"Successfully delegated task to '{self.delegation_topic}' topic. Message ID: {message_id}")
         except Exception as e:
             logging.error(f"Fehler beim Delegieren des Tasks an Pub/Sub: {e}", exc_info=True)
             raise IOError("Pub/Sub publish error") from e

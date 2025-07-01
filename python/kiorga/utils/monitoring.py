@@ -30,8 +30,12 @@ class MetricReporter:
         # und Fehler wie "AttributeError: module 'google.cloud.monitoring_v3' has no attribute 'Metric'" zu vermeiden.
         series = types.TimeSeries()
         series.metric.type = f"custom.googleapis.com/{metric_type}"
-        # KORREKTUR: Die Metric-Klasse und ihre Enums befinden sich im 'types'-Modul.
-        series.metric_kind = types.metric.MetricKind[metric_kind]
+        # KORREKTUR 1: MetricKind und ValueType sind Enums innerhalb von MetricDescriptor.
+        # Wir greifen über das Hauptmodul `monitoring_v3` darauf zu, um Stabilität zu gewährleisten.
+        series.metric_kind = monitoring_v3.MetricDescriptor.MetricKind[metric_kind.upper()]
+        # KORREKTUR 2: Der ValueType muss ebenfalls auf der TimeSeries gesetzt werden,
+        # damit die API den Typ des Datenpunktes kennt.
+        series.value_type = monitoring_v3.MetricDescriptor.ValueType[value_type.upper()]
         if labels:
             for key, val in labels.items():
                 series.metric.labels[key] = val

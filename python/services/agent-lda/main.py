@@ -2,7 +2,7 @@ import os
 import base64
 import json
 import logging
-from flask import Flask, request
+from fastapi import FastAPI, Request, HTTPException
 from google.cloud import firestore
 from google.cloud import pubsub_v1
 from google.protobuf import json_format
@@ -50,7 +50,7 @@ if not all([PROJECT_ID, ASSIGNED_AGENT_ID, DELEGATION_TOPIC]):
     raise EnvironmentError("Fehlende Umgebungsvariablen: GCP_PROJECT, ASSIGNED_AGENT_ID, DELEGATION_TOPIC müssen gesetzt sein.")
 
 # Initialisiert die Web-Anwendung
-app = Flask(__name__)
+app = FastAPI()
 
 
 def decode_pubsub_message(envelope: dict) -> str:
@@ -178,8 +178,8 @@ def update_task_after_delegation(doc_ref, task_id: str):
         raise IOError("Firestore update error") from e
 
 
-@app.route("/", methods=["POST"])
-def index():
+@app.post("/")
+async def index(request: Request):
     """
     Haupt-Endpunkt, der Pub/Sub-Nachrichten über einen HTTP-POST-Request empfängt.
     
@@ -190,11 +190,11 @@ def index():
     4. Delegiert den Task an den nächsten Agenten via Pub/Sub.
     5. Aktualisiert den Task-Status in Firestore.
     """
-    envelope = request.get_json()
+    envelope = await request.json()
     if not envelope:
         msg = "no Pub/Sub message received"
         logging.error(msg)
-        return f"Bad Request: {msg}", 400
+        raise HTTPException(status_code=400, detail=f"Bad Request: {msg}")
 
     try:
         # Schritt 1 & 2: Nachricht dekodieren und Task validieren
@@ -217,20 +217,19 @@ def index():
     except ValueError as e:
         # Fehler bei der Dekodierung, beim Parsen oder bei der Validierung.
         # Gibt 400 für Dekodierungsfehler und 422 für Validierungsfehler zurück.
-        return f"Bad Request: {e}", 400 if "decode" in str(e) else 422
+        status_code = 400 if "decode" in str(e) else 422
+        raise HTTPException(status_code=status_code, detail=f"Bad Request: {e}")
     except IOError as e:
         # Fehler bei externen Diensten wie Firestore oder Pub/Sub.
-        return f"Internal Server Error: {e}", 500
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {e}")
     except Exception as e:
         # Fängt alle anderen unerwarteten Fehler ab.
         logging.error(f"Unerwarteter Fehler beim Verarbeiten der Pub/Sub-Nachricht: {e}", exc_info=True)
-        return "Internal Server Error: unexpected error", 500
+        raise HTTPException(status_code=500, detail="Internal Server Error: unexpected error")
 
     # Eine leere "204 No Content"-Antwort signalisiert Pub/Sub,
     # dass die Nachricht erfolgreich verarbeitet wurde und nicht erneut zugestellt werden muss.
     return "", 204
 
-if __name__ == "__main__":
-    # Startet den Server. Cloud Run setzt automatisch den PORT.
-    # Lokal würde er auf Port 8080 laufen.
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+# Um die Anwendung zu starten, verwenden Sie:
+# uvicorn main:app --host 0.0.0.0 --port 8080

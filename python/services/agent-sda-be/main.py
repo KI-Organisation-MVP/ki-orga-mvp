@@ -5,7 +5,7 @@ import logging
 import uuid
 import time
 
-from flask import Flask, request
+from fastapi import FastAPI, Request, HTTPException
 
 from google.cloud import firestore
 from google.cloud import pubsub_v1
@@ -39,14 +39,15 @@ if not all([PROJECT_ID, AGENT_ID, TOPIC_REPORTS]):
     raise EnvironmentError("Fehlende Umgebungsvariablen: GCP_PROJECT, AGENT_ID, REPORTS_TOPIC müssen gesetzt sein.")
 
 # Initialisiert die Web-Anwendung
-app = Flask(__name__)
+app = FastAPI()
 
 
-def parse_task_from_request(envelope: dict) -> task_pb2.Task:
+async def parse_task_from_request(request: Request) -> task_pb2.Task:
     """
     Extrahiert die Nachricht aus dem Pub/Sub-Envelope, dekodiert sie (Base64)
     und parst den resultierenden JSON-String in ein Task-Protobuf-Objekt.
     """
+    envelope = await request.json()
     if not envelope:
         raise ValueError("no Pub/Sub message received")
     if not isinstance(envelope, dict) or "message" not in envelope:
@@ -152,8 +153,8 @@ def create_and_publish_final_report(task_id: str):
         raise IOError("could not persist or publish final report") from e
 
 
-@app.route("/", methods=["POST"])
-def index():
+@app.post("/")
+async def index(request: Request):
     """
     Haupt-Endpunkt, der die Task-Verarbeitung orchestriert.
 
@@ -167,9 +168,8 @@ def index():
     """
     task = None
     try:
-        envelope = request.get_json()
         # Schritt 1: Task aus der Nachricht extrahieren und validieren.
-        task = parse_task_from_request(envelope)
+        task = await parse_task_from_request(request)
 
         # Schritt 2: Idempotenzprüfung. Verhindert doppelte Ausführung.
         if check_idempotency(task.task_id):
@@ -193,7 +193,7 @@ def index():
     except ValueError as e:
         # Fehler beim Parsen der Nachricht. Führt zu einem 400 Bad Request.
         # Die Nachricht wird von Pub/Sub nicht erneut zugestellt.
-        return f"Bad Request: {e}", 400
+        raise HTTPException(status_code=400, detail=f"Bad Request: {e}")
     except Exception as e:
         # Alle anderen Fehler (z.B. bei Firestore, Pub/Sub, Geschäftslogik).
         logging.error(f"Error processing message for task {getattr(task, 'task_id', 'N/A')}: {e}", exc_info=True)
@@ -204,8 +204,7 @@ def index():
         
         # Ein 500-Fehler signalisiert Pub/Sub, dass die Verarbeitung fehlgeschlagen ist.
         # Pub/Sub wird versuchen, die Nachricht erneut zuzustellen.
-        return "Internal Server Error: Could not process message", 500
+        raise HTTPException(status_code=500, detail="Internal Server Error: Could not process message")
 
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
+# Um die Anwendung zu starten, verwenden Sie:
+# uvicorn main:app --host 0.0.0.0 --port 8080

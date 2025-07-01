@@ -3,8 +3,8 @@
 protobuf
 
 # Web-Framework, um Pub/Sub-Nachrichten per HTTP-Push zu empfangen
-Flask
-gunicorn
+fastapi
+uvicorn[standard]
 
 # Google Cloud-Bibliotheken (neueste stabile Versionen)
 google-cloud-pubsub

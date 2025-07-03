@@ -81,8 +81,58 @@ steps:
       # Die Variablen werden als eine einzige, durch Kommas getrennte Zeichenkette übergeben.
       - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent_sda_be,AGENT_ID_LDA=agent_lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
 
+  # =================================================================
+  # SCHRITT 5: Docker Image für den SDA_BE-Service bauen
+  # =================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda_be-service:$BUILD_ID',
+        # -f gibt explizit den Pfad zu unserer Dockerfile an
+        '-f',
+        'python/services/agent_sda_be/Dockerfile',
+        # Der '.' am Ende sagt Docker, es soll das gesamte Projektverzeichnis als Kontext nehmen,
+        # damit es alle nötigen Dateien (wie das 'kiorga'-Paket) finden kann.
+        '.'
+      ]
+    id: 'Build Docker Image for SDA_BE'
+
+  # =================================================================
+  # SCHRITT 6: Gebautes Docker Image in das Artifact Registry pushen
+  # =================================================================
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda_be-service:$BUILD_ID',
+      ]
+    id: 'Push Docker Image for SDA_BE to Artifact Registry'
+
+  # =================================================================
+  # SCHRITT 7: Docker Image in Cloud Run deployen
+  # =================================================================
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'Deploy SDA_BE to Cloud Run'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'sda-be-service'
+      - '--image'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda_be-service:$BUILD_ID'
+      - '--region'
+      - 'europe-west3'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      # '--set-env-vars' ersetzt alle vorhandenen Umgebungsvariablen durch die hier definierten.
+      # Die Variablen werden als eine einzige, durch Kommas getrennte Zeichenkette übergeben.
+      - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent_sda_be,AGENT_ID_LDA=agent_lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
+
 images:
   - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
+  - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda_be-service:$BUILD_ID'
 
 options:
   logging: CLOUD_LOGGING_ONLY

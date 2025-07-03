@@ -30,8 +30,8 @@ steps:
   #     - '-c'
   #     - |
   #       pip install -r python/requirements.txt
-  #       pip install -r python/services/agent-lda/requirements.txt
-  #       pip install -r python/services/agent-sda-be/requirements.txt
+  #       pip install -r python/services/agent_lda/requirements.txt
+  #       pip install -r python/services/agent_sda_be/requirements.txt
   #       pip install pytest ruff
   #       ruff check .
   #       pytest python/services/

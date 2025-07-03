@@ -23,7 +23,7 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
 
 *   **Analyse:**
     *   Die Geschäftslogik ist direkt in den FastAPI-Routen-Handlern (`index()`-Funktion) implementiert. Bei zunehmender Komplexität wird dies schnell unübersichtlich und schwer zu testen.
-    *   Die Deserialisierung in `agent-lda` ist inkonsistent. Es wird `json_format.Parse` verwendet, während `agent-sda-be` `task.FromString` nutzt. Dies deutet auf eine Unklarheit im Nachrichtenformat hin (wird ein JSON-String oder ein serialisierter Protobuf-Byte-String gesendet?). Für eine robuste Kommunikation muss das Format eindeutig sein.
+    *   Die Deserialisierung in `agent_lda` ist inkonsistent. Es wird `json_format.Parse` verwendet, während `agent-sda-be` `task.FromString` nutzt. Dies deutet auf eine Unklarheit im Nachrichtenformat hin (wird ein JSON-String oder ein serialisierter Protobuf-Byte-String gesendet?). Für eine robuste Kommunikation muss das Format eindeutig sein.
     *   Die Validierungslogik (`validate_task`) ist manuell und muss für jede Änderung am Protobuf-Schema von Hand angepasst werden.
 
 *   **Empfehlungen für die Skalierung:**
@@ -52,7 +52,7 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
     *   **Strukturiertes Logging:** Verwenden Sie die `google-cloud-logging`-Bibliothek für Python. Diese formatiert Logs automatisch als JSON-Objekte, die in Cloud Logging leicht durchsuchbar und filterbar sind (z.B. "zeige mir alle Logs für `task_id=123`").
     *   **Anwendungsmetriken:** Integriere benutzerdefinierte Metriken mit der Cloud Monitoring API. Schlage sinnvolle Metriken vor, so dass ich wichtige KPIs wie die "Task-Verarbeitungszeit" oder die "Anzahl der fehlgeschlagenen Tasks pro Minute" verfolgen kann. Dies ermöglicht die Erstellung von Dashboards und Alarmen, um die Systemgesundheit proaktiv zu überwachen.
 
-
+--- 
 ### Reihenfolge der Umsetzung
 
 *  **Phase 1: Fundament & Stabilität (Höchste Priorität)**
@@ -62,7 +62,7 @@ Das Projekt hat eine solide, moderne Grundlage (Microservices, IaC, Protobuf), d
   Änderungen sicher zu machen. Sie beheben die kritischsten Probleme zuerst.
 
 
-   1. DONE (JSON-Strings): ~~Einheitliches Nachrichtenformat (Empfehlung 2b): Klären und vereinheitlichen Sie sofort das Pub/Sub-Nachrichtenformat. Entscheiden Sie, ob Sie rohe Protobuf-Bytes (empfohlen) oder JSON-Strings senden, und stellen Sie sicher, dass agent-lda und agent-sda-be denselben Mechanismus verwenden. Grund: Dies ist eine grundlegende Inkonsistenz in der Service-Kommunikation und eine potenzielle Fehlerquelle.~~
+   1. DONE (JSON-Strings): ~~Einheitliches Nachrichtenformat (Empfehlung 2b): Klären und vereinheitlichen Sie sofort das Pub/Sub-Nachrichtenformat. Entscheiden Sie, ob Sie rohe Protobuf-Bytes (empfohlen) oder JSON-Strings senden, und stellen Sie sicher, dass agent_lda und agent-sda-be denselben Mechanismus verwenden. Grund: Dies ist eine grundlegende Inkonsistenz in der Service-Kommunikation und eine potenzielle Fehlerquelle.~~
 
 
    2. DONE: Dead-Letter-Queues (DLQ) & Idempotente Verarbeitung (Empfehlung 3a & 3b):

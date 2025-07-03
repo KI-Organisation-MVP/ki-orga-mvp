@@ -3,7 +3,7 @@
 # wenn ein Push auf den Branch 'main' erfolgt.
 # Sie baut ein Docker-Image für den LDA-Service und pusht es in das Artifact Registry.
 # Die Protobuf-Dateien werden auf Qualität und Konsistenz geprüft, bevor das Image gebaut wird.
-# Die Protobuf-Dateien befinden sich im Verzeichnis 'proto' und die Dockerfile im Verzeichnis 'python/services/agent-lda'.
+# Die Protobuf-Dateien befinden sich im Verzeichnis 'proto' und die Dockerfile im Verzeichnis 'python/services/agent_lda'.
 # Die fertige 'buf'-Anwendung wird heruntergeladen und verwendet, um die Protobuf-Dateien zu prüfen.
 # Die Docker-Images werden in der Region 'europe-west3' gespeichert.
 # Die Images werden in das Artifact Registry unter dem Pfad 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID' gepusht.
@@ -43,7 +43,7 @@ steps:
         'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID',
         # -f gibt explizit den Pfad zu unserer Dockerfile an
         '-f',
-        'python/services/agent-lda/Dockerfile',
+        'python/services/agent_lda/Dockerfile',
         # Der '.' am Ende sagt Docker, es soll das gesamte Projektverzeichnis als Kontext nehmen,
         # damit es alle nötigen Dateien (wie das 'kiorga'-Paket) finden kann.
         '.'
@@ -79,7 +79,7 @@ steps:
       - '--allow-unauthenticated'
       # '--set-env-vars' ersetzt alle vorhandenen Umgebungsvariablen durch die hier definierten.
       # Die Variablen werden als eine einzige, durch Kommas getrennte Zeichenkette übergeben.
-      - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent-sda-be,AGENT_ID_LDA=agent-lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
+      - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent_sda_be,AGENT_ID_LDA=agent_lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
 
 images:
   - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'

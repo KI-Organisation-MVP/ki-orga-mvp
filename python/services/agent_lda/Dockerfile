@@ -8,13 +8,14 @@ WORKDIR /app
 # Installiere nur die Abhängigkeiten. Durch das Kopieren der requirements.txt
 # und die Installation vor dem Kopieren des restlichen Codes nutzen wir das Docker-Layer-Caching.
 COPY python/requirements.txt .
-COPY python/services/agent-sda-be/requirements.txt ./services/agent-sda-be/requirements.txt
+COPY python/services/agent_lda/requirements.txt ./services/agent_lda/requirements.txt
 
 # Erstelle ein virtuelles Environment und installiere die Pakete dorthin.
+# Dies isoliert die Abhängigkeiten und macht es einfach, sie in die nächste Stage zu kopieren.
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-RUN pip install --no-cache-dir -r services/agent-sda-be/requirements.txt
+RUN pip install --no-cache-dir -r services/agent_lda/requirements.txt
 
 # ===== STAGE 2: Final =====
 # Diese Stage erstellt das finale, schlanke Image.
@@ -27,15 +28,17 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 
 # Kopiere den Anwendungs-Code.
+# Wir kopieren das kiorga-Paket und den Service-Code.
 COPY python/kiorga ./kiorga
-COPY python/services/agent-sda-be/ ./services/agent-sda-be/
+COPY python/services/agent_lda/ ./services/agent_lda/
 
 # Aktiviere das virtuelle Environment für alle nachfolgenden Befehle.
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Setze den Startbefehl für den Container.
+# Wir wechseln in das Service-Verzeichnis, bevor wir den Server starten.
 ENV PYTHONPATH="/app:$PYTHONPATH"
 
 # Setze den Startbefehl für den Container.
-WORKDIR /app/services/agent-sda-be
+WORKDIR /app/services/agent_lda
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

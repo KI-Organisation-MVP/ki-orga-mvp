@@ -89,7 +89,7 @@ steps:
       [
         'build',
         '-t',
-        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda_be-service:$BUILD_ID',
+        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID',
         # -f gibt explizit den Pfad zu unserer Dockerfile an
         '-f',
         'python/services/agent_sda_be/Dockerfile',
@@ -106,7 +106,7 @@ steps:
     args:
       [
         'push',
-        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda_be-service:$BUILD_ID',
+        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID',
       ]
     id: 'Push Docker Image for SDA_BE to Artifact Registry'
 
@@ -120,7 +120,7 @@ steps:
       - 'deploy'
       - 'sda-be-service'
       - '--image'
-      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda_be-service:$BUILD_ID'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID'
       - '--region'
       - 'europe-west3'
       - '--platform'
@@ -132,7 +132,7 @@ steps:
 
 images:
   - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
-  - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda_be-service:$BUILD_ID'
+  - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID'
 
 options:
   logging: CLOUD_LOGGING_ONLY

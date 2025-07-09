@@ -1,4 +1,33 @@
+import logging
+from typing import Callable, List, Optional, Type, TypeVar
+
 from kiorga.datamodel import task_pb2
+from google.protobuf import json_format
+from google.protobuf.message import Message
+
+# Generic TypeVar für Protobuf-Nachrichten, um Typsicherheit zu gewährleisten
+T = TypeVar('T', bound=Message)
+
+def parse_and_validate_message(
+    json_string: str,
+    message_class: Type[T],
+    validator_func: Optional[Callable[[T], List[str]]] = None
+) -> T:
+    """
+    Parst einen JSON-String in eine Protobuf-Nachricht, validiert sie optional und gibt sie zurück.
+    """
+    try:
+        message_instance = message_class()
+        json_format.Parse(json_string, message_instance)
+    except json_format.ParseError as e:
+        logging.error(f"Protobuf-Deserialisierung für {message_class.__name__} fehlgeschlagen: {e}", exc_info=True)
+        raise ValueError(f"protobuf parse error for {message_class.__name__}") from e
+
+    if validator_func and (errors := validator_func(message_instance)):
+        error_msg = f"Validierung für {message_class.__name__} fehlgeschlagen. Fehlerhafte Felder: {errors}"
+        raise ValueError(error_msg)
+
+    return message_instance
 
 def validate_task(task: task_pb2.Task) -> list[str]:
     """

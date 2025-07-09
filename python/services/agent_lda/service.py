@@ -1,27 +1,22 @@
 ## Imports
-import base64
-import json
 import logging
 import time
-import os
-from datetime import datetime
 
 from google.cloud import firestore
-from google.cloud import pubsub_v1
 from google.protobuf import json_format
-from google.protobuf.timestamp_pb2 import Timestamp
 
 from kiorga.datamodel import task_pb2
-from kiorga.utils.validation import validate_task
+from kiorga.utils.validation import parse_and_validate_message, validate_task
+from kiorga.utils.pubsub_helpers import decode_pubsub_message, publish_proto_message_as_json
 
-class TaskProcessor:
+class TaskHandler:
     """
     Kapselt die Geschäftslogik für die Verarbeitung von Tasks.
     """
 
     def __init__(self, db_client, pub_client, project_id: str, delegation_topic: str, assigned_agent_id: str):
         """
-        Initialisiert den TaskProcessor mit den erforderlichen Clients und Konfigurationen.
+        Initialisiert den TaskHandler mit den erforderlichen Clients und Konfigurationen.
 
         Args:
             db_client: Firestore-Client.
@@ -36,22 +31,26 @@ class TaskProcessor:
         self.delegation_topic = delegation_topic
         self.assigned_agent_id = assigned_agent_id
 
-    def process_task(self, envelope: dict) -> None:
+    def handle_task(self, envelope: dict) -> None:
         """
         Orchestriert den gesamten Prozess der Task-Verarbeitung.
         """
         start_time = time.time()
         try:
-            json_string_received, publish_timestamp = self._decode_pubsub_message(envelope)
+            json_string_received, publish_timestamp = decode_pubsub_message(envelope)
             # receive_latency = time.time() - publish_timestamp # Metrik entfernt
 
-            task = self._parse_and_validate_task(json_string_received)
+            task = parse_and_validate_message(
+                json_string=json_string_received,
+                message_class=task_pb2.Task,
+                validator_func=validate_task
+            )
 
             doc_ref, should_process = self._save_task_to_firestore(task)
             if not should_process:
                 return  # Idempotenter Abbruch
 
-            self._delegate_task_to_sda(json_string_received, task.task_id)
+            self._delegate_task_to_sda(task)
             self._update_task_after_delegation(doc_ref, task.task_id)
 
             logging.info(f"Task {task.task_id} erfolgreich verarbeitet.")
@@ -59,55 +58,6 @@ class TaskProcessor:
         except Exception as e:
             logging.error(f"Fehler bei der Task-Verarbeitung: {e}", exc_info=True)
             raise  # Fehler weiterleiten
-
-    def _decode_pubsub_message(self, envelope: dict) -> tuple[str, float]:
-        """Extrahiert und dekodiert die Base64-kodierten Daten aus einer Pub/Sub-Nachricht und gibt den JSON-String und den Publish-Zeitstempel zurück."""
-        if not isinstance(envelope, dict) or "message" not in envelope:
-            raise ValueError("invalid Pub/Sub message format")
-
-        pubsub_message = envelope["message"]
-        if not isinstance(pubsub_message, dict) or "data" not in pubsub_message:
-            raise ValueError("Pub/Sub message missing 'data' field")
-
-        publish_time_str = pubsub_message.get("publish_time")
-        publish_timestamp = 0.0
-        if publish_time_str:
-            try:
-                dt_object = datetime.fromisoformat(publish_time_str.replace('Z', '+00:00'))
-                publish_timestamp = dt_object.timestamp()
-            except ValueError:
-                logging.warning(f"Konnte publish_time '{publish_time_str}' nicht parsen.")
-                publish_timestamp = time.time() # Fallback zu aktueller Zeit
-        else:
-            publish_timestamp = time.time() # Fallback zu aktueller Zeit
-
-        try:
-            data_bytes = base64.b64decode(pubsub_message["data"])
-            json_string_received = data_bytes.decode('utf-8')
-            logging.info(f"Empfangene JSON-Daten: {json_string_received}")
-            return json_string_received, publish_timestamp
-        except Exception as e:
-            logging.error(f"Base64-Dekodierung fehlgeschlagen: {e}", exc_info=True)
-            raise ValueError("base64 decode error") from e
-
-    def _parse_and_validate_task(self, json_string: str) -> task_pb2.Task:
-        """Parst einen JSON-String in ein Task-Objekt und validiert dessen Inhalt."""
-        try:
-            task = task_pb2.Task()
-            json_format.Parse(json_string, task)
-            logging.info(f"Successfully parsed Task object from JSON: id={task.task_id}, title='{task.title}'")
-        except Exception as e:            
-            logging.error(f"Protobuf-Deserialisierung fehlgeschlagen: {e}", exc_info=True)
-            raise ValueError("protobuf parse error") from e
-
-        validation_errors = validate_task(task)
-        if validation_errors:
-            error_msg = f"Fehlerhafte Felder: {validation_errors}"
-            logging.error(error_msg)
-            raise ValueError(error_msg)
-        
-        logging.info("Task-Objekt erfolgreich validiert.")
-        return task
 
     def _save_task_to_firestore(self, task: task_pb2.Task) -> tuple[firestore.DocumentReference, bool]:
         """Speichert den Task in Firestore und prüft auf Idempotenz."""
@@ -127,19 +77,20 @@ class TaskProcessor:
             logging.error(f"Fehler beim Speichern in Firestore: {e}", exc_info=True)
             raise IOError("Firestore write error") from e
 
-    def _delegate_task_to_sda(self, task_json: str, task_id: str):
+    def _delegate_task_to_sda(self, task: task_pb2.Task):
         """Delegiert den Task an den nächsten Agenten via Pub/Sub."""
-        if not task_id:
+        if not task.task_id:
             logging.warning("Keine Task-ID vorhanden, Delegation wird übersprungen.")
             return
 
-        logging.info(f"Delegating task {task_id} to {self.assigned_agent_id}...")
+        logging.info(f"Delegating task {task.task_id} to {self.assigned_agent_id} via topic '{self.delegation_topic}'...")
         try:
-            data_to_send = task_json.encode('utf-8')
-            topic_path = self.publisher.topic_path(self.project_id, self.delegation_topic)
-            future = self.publisher.publish(topic_path, data=data_to_send)
-            message_id = future.result(timeout=30)
-            logging.info(f"Successfully delegated task to '{self.delegation_topic}' topic. Message ID: {message_id}")
+            publish_proto_message_as_json(
+                publisher=self.publisher,
+                project_id=self.project_id,
+                topic_id=self.delegation_topic,
+                proto_message=task
+            )
         except Exception as e:
             logging.error(f"Fehler beim Delegieren des Tasks an Pub/Sub: {e}", exc_info=True)
             raise IOError("Pub/Sub publish error") from e

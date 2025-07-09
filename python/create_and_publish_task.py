@@ -4,12 +4,11 @@ import logging
 from dotenv import load_dotenv
 from kiorga.datamodel import task_pb2
 # Wir importieren die korrekten Enums
+from kiorga.utils.pubsub_helpers import publish_proto_message_as_json
 from kiorga.utils.validation import validate_task
 from kiorga.datamodel.task_pb2 import TaskStatus, TaskPriority
 from google.protobuf.timestamp_pb2 import Timestamp
 from google.cloud import pubsub_v1
-from google.api_core import exceptions
-from google.protobuf import json_format
 
 # Lädt die Umgebungsvariablen aus der .env-Datei im Root-Verzeichnis
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), '..', '.env'))
@@ -54,29 +53,19 @@ def create_and_publish_task():
         print(error_msg)
         return (False, "VALIDATION_ERROR", error_msg)
 
-    # 2. Task in binäre Daten serialisieren (Protobuf)
-    # data_to_send = task.SerializeToString()
-    json_string_to_send = json_format.MessageToJson(task)
-
-    # --- NEUE DIAGNOSE-AUSGABE ---
     logging.info(f"Erstelle Task mit ID: {task.task_id}")
-    logging.info(f"Sende als JSON-String: {json_string_to_send}")
-
-    data_to_send = json_string_to_send.encode('utf-8')
 
     # 3. Nachricht mit Fehlerbehandlung an Pub/Sub veröffentlichen
     try:
         publisher = pubsub_v1.PublisherClient()
-        topic_path = publisher.topic_path(PROJECT_ID, ASSIGN_TOPIC_ID)
-        
-        # Nachricht veröffentlichen (asynchron)
-        future = publisher.publish(topic_path, data=data_to_send)
-        
-        # Auf das Ergebnis warten (max. 30 Sekunden)
-        message_id = future.result(timeout=30)
-        logging.info(f"Nachricht erfolgreich veröffentlicht mit Message ID: {message_id}")
+        publish_proto_message_as_json(
+            publisher=publisher,
+            project_id=PROJECT_ID,
+            topic_id=ASSIGN_TOPIC_ID,
+            proto_message=task
+        )
         return (True, None, None)
-    except exceptions.GoogleAPICallError as e:
+    except IOError as e:
         logging.error(f"Fehler bei der Pub/Sub-API während des Veröffentlichens: {e}")
         return (False, "PUBSUB_API_ERROR", str(e))
     except Exception as e:

@@ -1,44 +1,4 @@
 # =================================================================
-# YAML-Anker und Vorlagen für wiederverwendbare Schritte
-# Die `x-` Präfixe sind eine Konvention für nicht-standardisierte YAML-Erweiterungen.
-# Wir definieren hier Vorlagen für die Build-, Push- und Deploy-Schritte.
-# Diese Vorlagen verwenden Cloud Build-Substitutionsvariablen (`${_SERVICE_NAME}`, etc.),
-# die in den jeweiligen Schritten unten mit konkreten Werten gefüllt werden.
-# =================================================================
-x-build-step: &build_step
-  name: 'gcr.io/cloud-builders/docker'
-  args:
-    - 'build'
-    - '--build-arg'
-    - 'SERVICE_NAME=${_SERVICE_PATH_NAME}'
-    - '-t'
-    - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/${_SERVICE_NAME}:$BUILD_ID'
-    - '-f'
-    - 'python/Dockerfile.generic'
-    - '.'
-
-x-push-step: &push_step
-  name: 'gcr.io/cloud-builders/docker'
-  args:
-    - 'push'
-    - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/${_SERVICE_NAME}:$BUILD_ID'
-
-x-deploy-step: &deploy_step
-  name: 'gcr.io/cloud-builders/gcloud'
-  args:
-    - 'run'
-    - 'deploy'
-    - '${_SERVICE_NAME}'
-    - '--image'
-    - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/${_SERVICE_NAME}:$BUILD_ID'
-    - '--region'
-    - 'europe-west3'
-    - '--platform'
-    - 'managed'
-    - '--allow-unauthenticated'
-    - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent_sda_be,AGENT_ID_LDA=agent_lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
-
-# =================================================================
 # Diese Datei definiert die Schritte, die Google Cloud Build ausführen soll,
 # wenn ein Push auf den Branch 'main' erfolgt.
 # Sie baut ein Docker-Image für den LDA-Service und pusht es in das Artifact Registry.
@@ -75,40 +35,74 @@ steps:
   # =================================================================
   # SCHRITTE für lda-service
   # =================================================================
-  - <<: *build_step
+  - name: 'gcr.io/cloud-builders/docker'
     id: 'Build Docker Image for LDA'
-    substitutions:
-      _SERVICE_NAME: 'lda-service'
-      _SERVICE_PATH_NAME: 'agent_lda'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'SERVICE_NAME=agent_lda'
+      - '-t'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
+      - '-f'
+      - 'python/Dockerfile.generic'
+      - '.'
 
-  - <<: *push_step
+  - name: 'gcr.io/cloud-builders/docker'
     id: 'Push Docker Image for LDA'
-    substitutions:
-      _SERVICE_NAME: 'lda-service'
+    args:
+      - 'push'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
 
-  - <<: *deploy_step
+  - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Deploy LDA to Cloud Run'
-    substitutions:
-      _SERVICE_NAME: 'lda-service'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'lda-service'
+      - '--image'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
+      - '--region'
+      - 'europe-west3'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars=GCP_PROJECT=$PROJECT_ID,AGENT_ID_SDA_BE=agent_sda_be,AGENT_ID_LDA=agent_lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
 
   # =================================================================
   # SCHRITTE für sda-be-service
   # =================================================================
-  - <<: *build_step
+  - name: 'gcr.io/cloud-builders/docker'
     id: 'Build Docker Image for SDA_BE'
-    substitutions:
-      _SERVICE_NAME: 'sda-be-service'
-      _SERVICE_PATH_NAME: 'agent_sda_be'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'SERVICE_NAME=agent_sda_be'
+      - '-t'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID'
+      - '-f'
+      - 'python/Dockerfile.generic'
+      - '.'
 
-  - <<: *push_step
+  - name: 'gcr.io/cloud-builders/docker'
     id: 'Push Docker Image for SDA_BE'
-    substitutions:
-      _SERVICE_NAME: 'sda-be-service'
+    args:
+      - 'push'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID'
 
-  - <<: *deploy_step
+  - name: 'gcr.io/cloud-builders/gcloud'
     id: 'Deploy SDA_BE to Cloud Run'
-    substitutions:
-      _SERVICE_NAME: 'sda-be-service'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'sda-be-service'
+      - '--image'
+      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID'
+      - '--region'
+      - 'europe-west3'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--set-env-vars=GCP_PROJECT=$PROJECT_ID,AGENT_ID_SDA_BE=agent_sda_be,AGENT_ID_LDA=agent_lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
 
 images:
   - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'

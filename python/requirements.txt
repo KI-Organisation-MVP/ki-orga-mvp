@@ -1,3 +1,6 @@
 google-cloud-pubsub
 protobuf
 python-dotenv
+google-cloud-firestore
+grpcio-tools
+google-cloud-storage

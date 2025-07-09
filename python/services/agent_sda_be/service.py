@@ -35,7 +35,6 @@ class TaskHandler:
         try:
             task, publish_timestamp = self._parse_task_from_request(envelope)
             receive_latency = time.time() - publish_timestamp
-            self.metric_reporter.send_metric("pubsub_message_receive_latency", receive_latency, "GAUGE", "double_value")
 
             if self._check_idempotency(task.task_id):
                 return
@@ -46,17 +45,14 @@ class TaskHandler:
             self._update_task_status(task.task_id, task_pb2.TaskStatus.TASK_STATUS_COMPLETED)
 
             processing_time = time.time() - start_time
-            self.metric_reporter.send_metric("task_processing_time", processing_time, "GAUGE", "double_value", {"status": "success"})
             logging.info(f"Task {task.task_id} erfolgreich verarbeitet in {processing_time:.4f} Sekunden.")
 
         except (ValueError, IOError) as e:
-            self.metric_reporter.send_metric("failed_tasks_count", 1, "CUMULATIVE", "int64_value", {"error_type": type(e).__name__})
             raise e
         except Exception as e:
             logging.error(f"Unerwarteter Fehler bei der Verarbeitung von Task {getattr(task, 'task_id', 'N/A')}: {e}", exc_info=True)
             if task and task.task_id:
                 self._update_task_status(task.task_id, task_pb2.TaskStatus.TASK_STATUS_FAILED)
-            self.metric_reporter.send_metric("failed_tasks_count", 1, "CUMULATIVE", "int64_value", {"error_type": type(e).__name__})
             raise IOError("Unbekannter interner Fehler") from e
 
     def _parse_task_from_request(self, envelope: dict) -> tuple[task_pb2.Task, float]:
@@ -88,7 +84,6 @@ class TaskHandler:
             logging.info(f"SDA-BE received task: id={task.task_id}, title='{task.title}'")
             return task, publish_timestamp
         except Exception as e:
-            self.metric_reporter.send_metric("task_validation_errors", 1, "CUMULATIVE", "int64_value", {"error_type": type(e).__name__})
             logging.error(f"Fehler beim Parsen des Tasks: {e}", exc_info=True)
             raise ValueError("could not parse task from message") from e
 
@@ -98,7 +93,6 @@ class TaskHandler:
         query = reports_ref.where("taskId", "==", task_id).limit(1)
         if list(query.stream()):
             logging.warning(f"Task {task_id} wurde bereits abgeschlossen. Breche Verarbeitung ab.")
-            self.metric_reporter.send_metric("idempotency_check_hits", 1, "CUMULATIVE", "int64_value", {"reason": "already_completed"})
             return True
         return False
 

@@ -1,0 +1,42 @@
+# ===== Generisches Dockerfile für alle Python-Services =====
+# Dieses Dockerfile wird über ein Build-Argument gesteuert, um die Duplizierung
+# von Build-Logik zu vermeiden.
+#
+# Beispielaufruf:
+# docker build --build-arg SERVICE_NAME=agent_lda -f python/Dockerfile.generic .
+
+# Das Build-Argument muss vor der ersten Verwendung deklariert werden.
+ARG SERVICE_NAME
+
+# ===== STAGE 1: Builder =====
+FROM python:3.12.3 as builder
+
+# Das Argument muss in jeder Stage erneut deklariert werden.
+ARG SERVICE_NAME
+
+WORKDIR /app
+
+# Kopiere die allgemeinen und die service-spezifischen Anforderungen.
+COPY python/requirements.txt .
+COPY python/services/${SERVICE_NAME}/requirements.txt ./services/${SERVICE_NAME}/requirements.txt
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+RUN pip install --no-cache-dir -r services/${SERVICE_NAME}/requirements.txt
+
+# ===== STAGE 2: Final =====
+FROM python:3.12.3-slim
+
+ARG SERVICE_NAME
+WORKDIR /app
+
+COPY --from=builder /opt/venv /opt/venv
+COPY python/kiorga ./kiorga
+COPY python/services/${SERVICE_NAME}/ ./services/${SERVICE_NAME}/
+
+ENV PATH="/opt/venv/bin:$PATH"
+ENV PYTHONPATH="/app:$PYTHONPATH"
+
+WORKDIR /app/services/${SERVICE_NAME}
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]

@@ -1,4 +1,44 @@
 # =================================================================
+# YAML-Anker und Vorlagen für wiederverwendbare Schritte
+# Die `x-` Präfixe sind eine Konvention für nicht-standardisierte YAML-Erweiterungen.
+# Wir definieren hier Vorlagen für die Build-, Push- und Deploy-Schritte.
+# Diese Vorlagen verwenden Cloud Build-Substitutionsvariablen (`${_SERVICE_NAME}`, etc.),
+# die in den jeweiligen Schritten unten mit konkreten Werten gefüllt werden.
+# =================================================================
+x-build-step: &build_step
+  name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'build'
+    - '--build-arg'
+    - 'SERVICE_NAME=${_SERVICE_PATH_NAME}'
+    - '-t'
+    - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/${_SERVICE_NAME}:$BUILD_ID'
+    - '-f'
+    - 'python/Dockerfile.generic'
+    - '.'
+
+x-push-step: &push_step
+  name: 'gcr.io/cloud-builders/docker'
+  args:
+    - 'push'
+    - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/${_SERVICE_NAME}:$BUILD_ID'
+
+x-deploy-step: &deploy_step
+  name: 'gcr.io/cloud-builders/gcloud'
+  args:
+    - 'run'
+    - 'deploy'
+    - '${_SERVICE_NAME}'
+    - '--image'
+    - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/${_SERVICE_NAME}:$BUILD_ID'
+    - '--region'
+    - 'europe-west3'
+    - '--platform'
+    - 'managed'
+    - '--allow-unauthenticated'
+    - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent_sda_be,AGENT_ID_LDA=agent_lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
+
+# =================================================================
 # Diese Datei definiert die Schritte, die Google Cloud Build ausführen soll,
 # wenn ein Push auf den Branch 'main' erfolgt.
 # Sie baut ein Docker-Image für den LDA-Service und pusht es in das Artifact Registry.
@@ -33,102 +73,42 @@ steps:
     id: 'Lint Proto Files'
 
   # =================================================================
-  # SCHRITT 2: Docker Image für den LDA-Service bauen
+  # SCHRITTE für lda-service
   # =================================================================
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      [
-        'build',
-        '-t',
-        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID',
-        # -f gibt explizit den Pfad zu unserer Dockerfile an
-        '-f',
-        'python/services/agent_lda/Dockerfile',
-        # Der '.' am Ende sagt Docker, es soll das gesamte Projektverzeichnis als Kontext nehmen,
-        # damit es alle nötigen Dateien (wie das 'kiorga'-Paket) finden kann.
-        '.'
-      ]
+  - <<: *build_step
     id: 'Build Docker Image for LDA'
+    substitutions:
+      _SERVICE_NAME: 'lda-service'
+      _SERVICE_PATH_NAME: 'agent_lda'
+
+  - <<: *push_step
+    id: 'Push Docker Image for LDA'
+    substitutions:
+      _SERVICE_NAME: 'lda-service'
+
+  - <<: *deploy_step
+    id: 'Deploy LDA to Cloud Run'
+    substitutions:
+      _SERVICE_NAME: 'lda-service'
 
   # =================================================================
-  # SCHRITT 3: Gebautes Docker Image in das Artifact Registry pushen
+  # SCHRITTE für sda-be-service
   # =================================================================
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      [
-        'push',
-        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID',
-      ]
-    id: 'Push Docker Image to Artifact Registry'
-
-  # =================================================================
-  # SCHRITT 4: Docker Image in Cloud Run deployen
-  # =================================================================
-  - name: 'gcr.io/cloud-builders/gcloud'
-    id: 'Deploy to Cloud Run'
-    args:
-      - 'run'
-      - 'deploy'
-      - 'lda-service'
-      - '--image'
-      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'
-      - '--region'
-      - 'europe-west3'
-      - '--platform'
-      - 'managed'
-      - '--allow-unauthenticated'
-      # '--set-env-vars' ersetzt alle vorhandenen Umgebungsvariablen durch die hier definierten.
-      # Die Variablen werden als eine einzige, durch Kommas getrennte Zeichenkette übergeben.
-      - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent_sda_be,AGENT_ID_LDA=agent_lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
-
-  # =================================================================
-  # SCHRITT 5: Docker Image für den SDA_BE-Service bauen
-  # =================================================================
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      [
-        'build',
-        '-t',
-        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID',
-        # -f gibt explizit den Pfad zu unserer Dockerfile an
-        '-f',
-        'python/services/agent_sda_be/Dockerfile',
-        # Der '.' am Ende sagt Docker, es soll das gesamte Projektverzeichnis als Kontext nehmen,
-        # damit es alle nötigen Dateien (wie das 'kiorga'-Paket) finden kann.
-        '.'
-      ]
+  - <<: *build_step
     id: 'Build Docker Image for SDA_BE'
+    substitutions:
+      _SERVICE_NAME: 'sda-be-service'
+      _SERVICE_PATH_NAME: 'agent_sda_be'
 
-  # =================================================================
-  # SCHRITT 6: Gebautes Docker Image in das Artifact Registry pushen
-  # =================================================================
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      [
-        'push',
-        'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID',
-      ]
-    id: 'Push Docker Image for SDA_BE to Artifact Registry'
+  - <<: *push_step
+    id: 'Push Docker Image for SDA_BE'
+    substitutions:
+      _SERVICE_NAME: 'sda-be-service'
 
-  # =================================================================
-  # SCHRITT 7: Docker Image in Cloud Run deployen
-  # =================================================================
-  - name: 'gcr.io/cloud-builders/gcloud'
+  - <<: *deploy_step
     id: 'Deploy SDA_BE to Cloud Run'
-    args:
-      - 'run'
-      - 'deploy'
-      - 'sda-be-service'
-      - '--image'
-      - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/sda-be-service:$BUILD_ID'
-      - '--region'
-      - 'europe-west3'
-      - '--platform'
-      - 'managed'
-      - '--allow-unauthenticated'
-      # '--set-env-vars' ersetzt alle vorhandenen Umgebungsvariablen durch die hier definierten.
-      # Die Variablen werden als eine einzige, durch Kommas getrennte Zeichenkette übergeben.
-      - '--set-env-vars=GCP_PROJECT=${PROJECT_ID},AGENT_ID_SDA_BE=agent_sda_be,AGENT_ID_LDA=agent_lda,TOPIC_REPORTS=final_reports,TOPIC_SDA_BE_TASKS=sda_be_tasks,TOPIC_LDA_TASKS=lda_tasks,TOPIC_TASK_ASSIGNMENTS=task_assignments'
+    substitutions:
+      _SERVICE_NAME: 'sda-be-service'
 
 images:
   - 'europe-west3-docker.pkg.dev/$PROJECT_ID/agent-images/lda-service:$BUILD_ID'

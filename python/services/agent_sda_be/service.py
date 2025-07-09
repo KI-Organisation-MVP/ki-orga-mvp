@@ -1,17 +1,13 @@
-import base64
-import json
 import logging
 import time
 import uuid
-import os
-from datetime import datetime
 
-from google.cloud import firestore
-from google.cloud import pubsub_v1
 from google.protobuf import json_format
 from google.protobuf.timestamp_pb2 import Timestamp
 
 from kiorga.datamodel import final_report_pb2, task_pb2
+from kiorga.utils.pubsub_helpers import decode_pubsub_message, publish_proto_message_as_json
+from kiorga.utils.validation import parse_and_validate_message
 
 
 class TaskHandler:
@@ -33,8 +29,14 @@ class TaskHandler:
         task = None
         start_time = time.time()
         try:
-            task, publish_timestamp = self._parse_task_from_request(envelope)
-            receive_latency = time.time() - publish_timestamp
+            json_string_received, publish_timestamp = decode_pubsub_message(envelope)
+            # receive_latency = time.time() - publish_timestamp # Metrik entfernt
+
+            task = parse_and_validate_message(
+                json_string=json_string_received,
+                message_class=task_pb2.Task
+            )
+            logging.info(f"SDA-BE received task: id={task.task_id}, title='{task.title}'")
 
             if self._check_idempotency(task.task_id):
                 return
@@ -54,38 +56,6 @@ class TaskHandler:
             if task and task.task_id:
                 self._update_task_status(task.task_id, task_pb2.TaskStatus.TASK_STATUS_FAILED)
             raise IOError("Unbekannter interner Fehler") from e
-
-    def _parse_task_from_request(self, envelope: dict) -> tuple[task_pb2.Task, float]:
-        """Extrahiert, dekodiert und parst den Task aus der Pub/Sub-Nachricht und gibt den Task und den Publish-Zeitstempel zurück."""
-        if not isinstance(envelope, dict) or "message" not in envelope:
-            raise ValueError("invalid Pub/Sub message format")
-
-        pubsub_message = envelope["message"]
-        if not isinstance(pubsub_message, dict) or "data" not in pubsub_message:
-            raise ValueError("Pub/Sub message missing 'data' field")
-
-        publish_time_str = pubsub_message.get("publish_time")
-        publish_timestamp = 0.0
-        if publish_time_str:
-            try:
-                dt_object = datetime.fromisoformat(publish_time_str.replace('Z', '+00:00'))
-                publish_timestamp = dt_object.timestamp()
-            except ValueError:
-                logging.warning(f"Konnte publish_time '{publish_time_str}' nicht parsen.")
-                publish_timestamp = time.time() # Fallback zu aktueller Zeit
-        else:
-            publish_timestamp = time.time() # Fallback zu aktueller Zeit
-
-        try:
-            data_bytes = base64.b64decode(pubsub_message["data"])
-            json_string_received = data_bytes.decode('utf-8')
-            task = task_pb2.Task()
-            json_format.Parse(json_string_received, task)
-            logging.info(f"SDA-BE received task: id={task.task_id}, title='{task.title}'")
-            return task, publish_timestamp
-        except Exception as e:
-            logging.error(f"Fehler beim Parsen des Tasks: {e}", exc_info=True)
-            raise ValueError("could not parse task from message") from e
 
     def _check_idempotency(self, task_id: str) -> bool:
         """Prüft, ob bereits ein Abschlussbericht für den Task existiert."""
@@ -132,12 +102,12 @@ class TaskHandler:
             self.db.collection("final_reports").document(report_id).set(report_dict)
             logging.info(f"FinalReport {report_id} for task {task_id} saved to Firestore.")
 
-            report_json_string = json.dumps(report_dict)
-            report_bytes = report_json_string.encode('utf-8')
-            topic_path = self.publisher.topic_path(self.project_id, self.reports_topic)
-            future = self.publisher.publish(topic_path, data=report_bytes)
-            future.result(timeout=30)
-            logging.info(f"Published FinalReport {report_id} for task {task_id} to Pub/Sub.")
+            publish_proto_message_as_json(
+                publisher=self.publisher,
+                project_id=self.project_id,
+                topic_id=self.reports_topic,
+                proto_message=final_report
+            )
         except Exception as e:
             logging.error(f"Fehler beim Speichern/Veröffentlichen des Berichts für Task {task_id}: {e}", exc_info=True)
             raise IOError("could not persist or publish final report") from e
